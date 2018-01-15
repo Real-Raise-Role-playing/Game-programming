@@ -10,6 +10,10 @@ public class Inventory : MonoBehaviour
     public Transform slot;
     public List<Slot> slotScripts = new List<Slot>();
 
+    //드레그 스크립트
+    public Transform draggingItem;
+    public Slot enteredSlot;
+
     void Awake()
     {
         instance = this;
@@ -25,12 +29,14 @@ public class Inventory : MonoBehaviour
                 Transform newSlot = Instantiate(slot);
                 newSlot.name = "Slot" + (i + 1) + "." + (j + 1);
                 //newSlot.parent = transform;
-                newSlot.SetParent(transform, false);
+                newSlot.SetParent(transform, true);
                 RectTransform slotRect = newSlot.GetComponent<RectTransform>();
                 //slotRect.anchorMin = new Vector2(0.2f * i + 0.05f, 1 - (0.2f * (j + 1) - 0.05f));
                 //slotRect.anchorMax = new Vector2(0.2f * (i + 1) - 0.05f, 1 - (0.2f * j + 0.05f));
-                slotRect.anchorMin = new Vector2((0.8f - (0.2f * i)) + 0.05f, 1 - (0.2f * (j + 1) - 0.05f));
-                slotRect.anchorMax = new Vector2((0.8f - (0.2f * i)) + 0.15f, 1 - (0.2f * j + 0.05f));
+                //slotRect.anchorMin = new Vector2((0.8f - (0.2f * i)) + 0.05f, 1 - (0.2f * (j + 1) - 0.05f));
+                //slotRect.anchorMax = new Vector2((0.8f - (0.2f * i)) + 0.15f, 1 - (0.2f * j + 0.05f));
+                slotRect.anchorMin = new Vector2(0.2f * j + 0.05f, 1 - (0.2f * (i + 1) - 0.05f));
+                slotRect.anchorMax = new Vector2(0.2f * (j + 1) - 0.05f, 1 - (0.2f * i + 0.05f));
                 slotRect.offsetMin = Vector2.zero;
                 slotRect.offsetMax = Vector2.zero;
 
@@ -38,35 +44,52 @@ public class Inventory : MonoBehaviour
                 newSlot.GetComponent<Slot>().number = i * 5 + j;
             }
         }
-        AddItem(0);
-        AddItem(1);
+        //아이템 데이터베이스 최대 갯수 Add
+         AddItem(3);
     }
 
-    void ItemImageChange(Transform _slot)
+    public void ItemImageChange(Slot _slot)
     {
-        if (_slot.GetComponent<Slot>().item.itemValue == 0)
+        if (_slot.item.itemValue == 1)
         {
-            //_slot.GetChild(0).gameObject.SetActive(false);
-            _slot.gameObject.SetActive(false);
+            _slot.transform.GetChild(0).gameObject.SetActive(true);
+            _slot.transform.GetChild(0).GetComponent<Image>().sprite = _slot.item.itemImage;
+            //_slot.gameObject.SetActive(true);
+            //_slot.GetComponent<Image>().sprite = _slot.GetComponent<Slot>().item.itemImage;
         }
         else
         {
-            //_slot.GetChild(0).gameObject.SetActive(true);
-            //_slot.GetChild(0).GetComponent<Image>().sprite = _slot.GetComponent<Slot>().item.itemImage;
-            _slot.gameObject.SetActive(true);
-            _slot.GetComponent<Image>().sprite = _slot.GetComponent<Slot>().item.itemImage;
+            _slot.transform.GetChild(0).gameObject.SetActive(false);
+            //_slot.gameObject.SetActive(false);
         }
     }
 
     void AddItem(int number)
     {
-        for (int i = 0; i < slotScripts.Count; i++)
+        //for (int i = 0; i < slotScripts.Count; i++)
+        //{
+        //    if (slotScripts[i].item.itemValue == 0)
+        //    {
+        //        slotScripts[i].item = ItemDatabase.instance.items[number];
+        //        ItemImageChange(slotScripts[i]);
+        //        break;
+        //    }
+        //}
+
+        for (int i = 0; i < number; i++)
         {
             if (slotScripts[i].item.itemValue == 0)
             {
-                slotScripts[i].item = ItemDatabase.instance.items[number];
-                ItemImageChange(slotScripts[i].transform);
-                break;
+                slotScripts[i].item = ItemDatabase.instance.items[i];
+                ItemImageChange(slotScripts[i]);
+            }
+        }
+
+        for (int i = number; i < slotScripts.Count; i++)
+        {
+            if (slotScripts[i].item.itemValue == 0)
+            {
+                slotScripts[i].transform.GetChild(0).gameObject.SetActive(false);
             }
         }
     }

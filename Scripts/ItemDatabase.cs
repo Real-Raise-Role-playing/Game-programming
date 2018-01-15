@@ -15,6 +15,7 @@ public class ItemDatabase : MonoBehaviour {
     void Start()
     {
         Add("axe", 1, 500, "Good Axe", ItemType.Equipment);
+        Add("armor", 1, 500, "Best Armor", ItemType.Equipment);
         Add("apple", 1, 50, "Delicious Apple", ItemType.Consumption);
     }
 
