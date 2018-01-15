@@ -28,13 +28,8 @@ public class Inventory : MonoBehaviour
             {
                 Transform newSlot = Instantiate(slot);
                 newSlot.name = "Slot" + (i + 1) + "." + (j + 1);
-                //newSlot.parent = transform;
                 newSlot.SetParent(transform, true);
                 RectTransform slotRect = newSlot.GetComponent<RectTransform>();
-                //slotRect.anchorMin = new Vector2(0.2f * i + 0.05f, 1 - (0.2f * (j + 1) - 0.05f));
-                //slotRect.anchorMax = new Vector2(0.2f * (i + 1) - 0.05f, 1 - (0.2f * j + 0.05f));
-                //slotRect.anchorMin = new Vector2((0.8f - (0.2f * i)) + 0.05f, 1 - (0.2f * (j + 1) - 0.05f));
-                //slotRect.anchorMax = new Vector2((0.8f - (0.2f * i)) + 0.15f, 1 - (0.2f * j + 0.05f));
                 slotRect.anchorMin = new Vector2(0.2f * j + 0.05f, 1 - (0.2f * (i + 1) - 0.05f));
                 slotRect.anchorMax = new Vector2(0.2f * (j + 1) - 0.05f, 1 - (0.2f * i + 0.05f));
                 slotRect.offsetMin = Vector2.zero;
@@ -54,28 +49,16 @@ public class Inventory : MonoBehaviour
         {
             _slot.transform.GetChild(0).gameObject.SetActive(true);
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = _slot.item.itemImage;
-            //_slot.gameObject.SetActive(true);
-            //_slot.GetComponent<Image>().sprite = _slot.GetComponent<Slot>().item.itemImage;
         }
         else
         {
             _slot.transform.GetChild(0).gameObject.SetActive(false);
-            //_slot.gameObject.SetActive(false);
+            _slot.transform.GetChild(0).GetComponent<Image>().sprite = null;
         }
     }
 
     void AddItem(int number)
     {
-        //for (int i = 0; i < slotScripts.Count; i++)
-        //{
-        //    if (slotScripts[i].item.itemValue == 0)
-        //    {
-        //        slotScripts[i].item = ItemDatabase.instance.items[number];
-        //        ItemImageChange(slotScripts[i]);
-        //        break;
-        //    }
-        //}
-
         for (int i = 0; i < number; i++)
         {
             if (slotScripts[i].item.itemValue == 0)
