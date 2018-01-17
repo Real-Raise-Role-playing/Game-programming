@@ -24,7 +24,11 @@ public class FireScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
+        if (OptionManager.gameOptionOn)
+        {
+            return;
+        }
         /*
         //플레이어 죽음 처리, 일시정지 
         if (PauseManager.gamePause || playerState.isDead)

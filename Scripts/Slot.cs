@@ -33,9 +33,14 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
         //**자식 오브젝트 아이템 이미지 레이케스트를 꺼야함;;;(마우스 Enter, Exit시 오류 발생가능)
         if (Inventory.instance.enteredSlot != null)
         {
+            //임시 객체 선언 후 위치 교환
             ItemManager tempItem = item;
             item = Inventory.instance.enteredSlot.item;
             Inventory.instance.enteredSlot.item = tempItem;
+            //아이템 위치 교환 시 위치 번호를 맞추기 위함
+            item.itemCount = (number + 1);
+            Inventory.instance.enteredSlot.item.itemCount = (Inventory.instance.enteredSlot.number + 1);
+            //이미지 교환
             Inventory.instance.ItemImageChange(this);
             Inventory.instance.ItemImageChange(Inventory.instance.enteredSlot);
         }

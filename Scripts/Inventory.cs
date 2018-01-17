@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-
     public static Inventory instance;
     public Transform slot;
     public List<Slot> slotScripts = new List<Slot>();
@@ -22,25 +21,37 @@ public class Inventory : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        for (int i = 0; i < 5; i++)
+        //X축 ,Y축 갯수, X축간격
+        SlotMake(5, 5, 0.04f); 
+
+        //아이템 데이터베이스 최대 갯수 Add
+         AddItem(3);
+    }
+
+    void SlotMake(int xCount, int yCount, float xInterval)
+    {
+        Vector2 panelSize = new Vector2(GetComponent<RectTransform>().rect.width, GetComponent<RectTransform>().rect.height);
+        float xWidthRate = (1 - xInterval * (xCount + 1)) / xCount;
+        float yWidthRate = panelSize.x * xWidthRate / panelSize.y;
+        float yInterval = (1 - yWidthRate * yCount) / (yCount + 1);
+        for (int y = 0; y < yCount; y++)
         {
-            for (int j = 0; j < 5; j++)
+            for (int x = 0; x < xCount; x++)
             {
                 Transform newSlot = Instantiate(slot);
-                newSlot.name = "Slot" + (i + 1) + "." + (j + 1);
+                newSlot.name = "Slot" + (y + 1) + "." + (x + 1);
                 newSlot.SetParent(transform, true);
                 RectTransform slotRect = newSlot.GetComponent<RectTransform>();
-                slotRect.anchorMin = new Vector2(0.2f * j + 0.05f, 1 - (0.2f * (i + 1) - 0.05f));
-                slotRect.anchorMax = new Vector2(0.2f * (j + 1) - 0.05f, 1 - (0.2f * i + 0.05f));
+                slotRect.anchorMin = new Vector2(xWidthRate * x + xInterval * (x + 1), 1 - (yWidthRate * (y + 1) + yInterval * (y + 1)));
+                slotRect.anchorMax = new Vector2(xWidthRate * (x + 1) + xInterval * (x + 1), 1 - (yWidthRate * y + yInterval * (y + 1)));
                 slotRect.offsetMin = Vector2.zero;
                 slotRect.offsetMax = Vector2.zero;
 
                 slotScripts.Add(newSlot.GetComponent<Slot>());
-                newSlot.GetComponent<Slot>().number = i * 5 + j;
+                newSlot.GetComponent<Slot>().number = y * xCount + x;
+
             }
         }
-        //아이템 데이터베이스 최대 갯수 Add
-         AddItem(3);
     }
 
     public void ItemImageChange(Slot _slot)
@@ -76,5 +87,4 @@ public class Inventory : MonoBehaviour
             }
         }
     }
-
 }

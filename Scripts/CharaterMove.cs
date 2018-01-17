@@ -15,7 +15,7 @@ static class Constants
     public const float jumpCountMax = 1.0f;
     public const float Default_gravity = -20.0f;
     public const float jumpSpeed = 10.0f;
-    
+
     //FireScript 관련 상수
     public const float forwardPower = 20.0f;
     public const float upPower = 5.0f;
@@ -24,7 +24,8 @@ static class Constants
 
 }
 
-public class CharaterMove : MonoBehaviour {
+public class CharaterMove : MonoBehaviour
+{
     CharacterController characterController = null;
     public Transform cameraTransform;
     public float moveSpeed = Constants.DefaultMoveSpeed;
@@ -45,6 +46,15 @@ public class CharaterMove : MonoBehaviour {
         Vector3 moveDirection = new Vector3(x, 0, z);
         moveDirection = cameraTransform.TransformDirection(moveDirection);
 
+
+        //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
+        if (OptionManager.gameOptionOn)
+        {
+            //moveDirection.Normalize();
+            return;
+        }
+
+
         //달리기 관련 부분
         //-----------------------------------------
         if (Input.GetKey(KeyCode.LeftShift))
@@ -53,7 +63,7 @@ public class CharaterMove : MonoBehaviour {
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
             if (moveSpeed >= Constants.MaxMoveSpeed)
             {
-               moveSpeed = Constants.MaxMoveSpeed;
+                moveSpeed = Constants.MaxMoveSpeed;
             }
         }
         else if (Input.GetKeyUp(KeyCode.LeftShift))
@@ -78,4 +88,13 @@ public class CharaterMove : MonoBehaviour {
         characterController.Move(moveDirection * Time.deltaTime);
 
     } // End of Update
+
+
+    public CharacterController _characterController
+    {
+        get { return characterController; }
+        set { characterController = value; }
+    }
+
 }
+
