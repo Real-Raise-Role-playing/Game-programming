@@ -19,8 +19,7 @@ static class Constants
     //FireScript 관련 상수
     public const float forwardPower = 20.0f;
     public const float upPower = 5.0f;
-
-
+    
 }
 
 public class CharacterMove : MonoBehaviour
@@ -38,9 +37,13 @@ public class CharacterMove : MonoBehaviour
     //Input H, V 값을 받는 H, V
     private float inputH;
     private float inputV;
+
     //bool 값을 통해 run aim을 구별
     private bool run;
     private bool aim;
+    private bool sit;
+    private bool crawl;
+    
 
     // Use this for initialization
     void Start()
@@ -52,6 +55,9 @@ public class CharacterMove : MonoBehaviour
 
         run = false;
         aim = false;
+        sit = false;
+        crawl = false;
+
     }
 
     void Update()
@@ -70,18 +76,18 @@ public class CharacterMove : MonoBehaviour
         //-----------------------------------------
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            run = true;
             moveSpeed += Constants.AddMoveSpeed;
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
             if (moveSpeed >= Constants.MaxMoveSpeed)
             {
                 moveSpeed = Constants.MaxMoveSpeed;
             }
+            run = true;
         }
         else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             run = false;
-            anim.Play("IDLE", -1, 0f);
+            //anim.Play("IDLE", -1, 0f); 이 코드가 살아나면 walk -> run 사이에 idle이 들어가게되서 부자연스럽다.
             moveSpeed = Constants.DefaultMoveSpeed;
         }
         moveDirection *= moveSpeed;
@@ -90,59 +96,75 @@ public class CharacterMove : MonoBehaviour
 
         //-----------------------------------------
         //점프
-        if (characterController.isGrounded == true)
+        if (Input.GetButtonDown("Jump") && jumpCount <  Constants.jumpCountMax)
         {
-            yVelocity = Constants.Default_yVelocity;
-            jumpCount = 0.0f;
-        }
-        if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
-        {
-            anim.Play("JUMP01", -1, 0.24f);
-            //애니메이션이 빨리 실행되야한다 1. 공중에 올라가는 도중에 애니메이션이 작동함 -> 애니메이션의 앞부분이 길다. 애니메이션 앞부분을 자르던가 or 올라가는 시간을 약간 지연시키던가
+            anim.Play("JUMP01", -1, 0f);
+            //점프 애니메이션 수정
             yVelocity = jumpSpeed;
-            jumpCount++;
+            jumpCount = 1.0f;
+            //Debug.Log(jumpCount);
         }
         yVelocity += (gravity * Time.deltaTime);
         moveDirection.y = yVelocity;
         characterController.Move(moveDirection * Time.deltaTime);
+
+        if (characterController.isGrounded == true)
+        {
+            yVelocity = Constants.Default_yVelocity;
+            jumpCount = 0.0f;
+            //Debug.Log(jumpCount);
+        }
         //-----------------------------------------
         //근접 공격
-        if(Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.V))
         {
             anim.Play("MELEE_ATTACK", -1, 0f);
 
         }
-        //-----------------------------------------                                                                 2018-01-18 수정해야함.
+        //-----------------------------------------                                                                 
         //에임 공격
-        if (Input.GetMouseButton(1))
+      
+        if(aim==false && Input.GetMouseButtonDown(1))
         {
+           
+            anim.Play("AIM", -1, 0f);
+
             aim = true;
 
-
-            //if (Input.GetMouseButtonDown(1))
-            //{
-            //    anim.Play("idle", -1, 0f);
-            //    aim = false;
-            //}
-            //else if (Input.GetMouseButtonDown(0))
-            //{
-            //    anim.Play("AIM_SHOT", 0, 0f);
-            //    aim = false;
-            //}
-            if(aim==true)
-            {
-                if (Input.GetMouseButtonDown(1))
-                    aim = false;
-            }
         }
-        
+
+        else if(aim==true && Input.GetMouseButton(0))
+        {
+            anim.Play("AIM_SHOT", -1, 0f);
+        }
+
+        else if(aim==true && Input.GetMouseButtonDown(1))
+        {
+            anim.Play("IDLE", -1, 0f);
+            aim = false;
+        }
         //-----------------------------------------
         //논 에임 공격
-        if(Input.GetMouseButtonDown(0))
-        {
+        if (aim==false && Input.GetMouseButtonDown(0))
+            /*aim == false && Input.GetMouseButtonDown(0)*/
+        { 
             anim.Play("NONE_AIM", -1, 0f);
         }
+        //-----------------------------------------
 
+        //-----------------------------------------
+        // 앉기
+        if (sit==false && Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            anim.Play("sit_down", -1, 0f);
+            sit = true;
+        }
+        else if(sit==true && Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            anim.Play("sit_up", -1, 0f);
+            sit = false;
+        }
+        //-----------------------------------------
         inputH = Input.GetAxis("Horizontal");
         inputV = Input.GetAxis("Vertical");
 
@@ -151,7 +173,8 @@ public class CharacterMove : MonoBehaviour
 
         anim.SetBool("run", run);
         anim.SetBool("aim", aim);
-
+        anim.SetBool("crawl", crawl);
+        anim.SetBool("sit", sit);
 
     } // End of Update
 }
