@@ -43,7 +43,7 @@ public class CharacterMove : MonoBehaviour
     private bool aim;
     private bool sit;
     private bool crawl;
-    
+    private bool isWalk;
 
     // Use this for initialization
     void Start()
@@ -57,7 +57,7 @@ public class CharacterMove : MonoBehaviour
         aim = false;
         sit = false;
         crawl = false;
-
+        isWalk = false;
     }
 
     void Update()
@@ -92,8 +92,19 @@ public class CharacterMove : MonoBehaviour
         }
         moveDirection *= moveSpeed;
 
-        
 
+
+        //-----------------------------------------
+        //그냥 걷기
+
+        if (inputH != 0 || inputV != 0)
+        {
+            isWalk = true;
+        }
+        else
+        {
+            isWalk = false;
+        }
         //-----------------------------------------
         //점프
         if (Input.GetButtonDown("Jump") && jumpCount <  Constants.jumpCountMax)
@@ -165,8 +176,8 @@ public class CharacterMove : MonoBehaviour
             sit = false;
         }
         //-----------------------------------------
-        inputH = Input.GetAxis("Horizontal");
-        inputV = Input.GetAxis("Vertical");
+        inputH = Input.GetAxisRaw("Horizontal");
+        inputV = Input.GetAxisRaw("Vertical");
 
         anim.SetFloat("inputH", inputH);
         anim.SetFloat("inputV", inputV);
@@ -175,6 +186,7 @@ public class CharacterMove : MonoBehaviour
         anim.SetBool("aim", aim);
         anim.SetBool("crawl", crawl);
         anim.SetBool("sit", sit);
+        anim.SetBool("isWalk", isWalk);
 
     } // End of Update
 }
