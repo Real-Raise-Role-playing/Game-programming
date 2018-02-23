@@ -151,7 +151,6 @@ public class CharacterMove : MonoBehaviour
 
         else if(aim==true && Input.GetMouseButtonDown(1))
         {
-            anim.Play("IDLE", -1, 0f);
             aim = false;
         }
         //-----------------------------------------
