@@ -20,8 +20,7 @@ static class Constants
     public const float forwardPower = 20.0f;
     public const float upPower = 5.0f;
 
-
-
+    public const int startItemCount = 3;
 }
 
 public class CharaterMove : MonoBehaviour
@@ -33,28 +32,40 @@ public class CharaterMove : MonoBehaviour
     public float gravity = Constants.Default_gravity;
     private float yVelocity = Constants.Default_yVelocity;
     private float jumpCount = 0.0f;
+    Vector3 moveDirection;
     // Use this for initialization
-    void Start()
+    void Awake()
     {
         characterController = GetComponent<CharacterController>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
-        Vector3 moveDirection = new Vector3(x, 0, z);
+        moveDirection = new Vector3(x, 0, z);
         moveDirection = cameraTransform.TransformDirection(moveDirection);
 
+        //달리기 관련 함수
+        runCheck();
 
-        //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
-        if (OptionManager.gameOptionOn)
-        {
-            //moveDirection.Normalize();
-            return;
-        }
+        //점프 관련 함수
+        jumpCheck();
+        
+        yVelocity += (gravity * Time.deltaTime);
+        moveDirection.y = yVelocity;
+        characterController.Move(moveDirection * Time.deltaTime);
 
+    } // End of FixedUpdate
 
+    public Vector3 _MoveDirection
+    {
+        get { return moveDirection; }
+        set { moveDirection = value; }
+    }
+
+    void runCheck()
+    {
         //달리기 관련 부분
         //-----------------------------------------
         if (Input.GetKey(KeyCode.LeftShift))
@@ -71,8 +82,8 @@ public class CharaterMove : MonoBehaviour
             moveSpeed = Constants.DefaultMoveSpeed;
         }
         moveDirection *= moveSpeed;
-        //-----------------------------------------
-
+    }
+    void jumpCheck() {
         if (characterController.isGrounded == true)
         {
             yVelocity = Constants.Default_yVelocity;
@@ -83,18 +94,5 @@ public class CharaterMove : MonoBehaviour
             yVelocity = jumpSpeed;
             jumpCount++;
         }
-        yVelocity += (gravity * Time.deltaTime);
-        moveDirection.y = yVelocity;
-        characterController.Move(moveDirection * Time.deltaTime);
-
-    } // End of Update
-
-
-    public CharacterController _characterController
-    {
-        get { return characterController; }
-        set { characterController = value; }
     }
-
 }
-

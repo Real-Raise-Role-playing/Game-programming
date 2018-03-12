@@ -12,23 +12,22 @@ public class FireScript : MonoBehaviour
     
     private bool SingleShot = true;
 
+    float cameraDefaultZoom;
+    bool toggle = false;
     /*
     PlayerState playerState = null; //플레이어 죽음 처리
+    */
     // Use this for initialization
     void Start()
     {
-        playerState = GetComponent<PlayerState>(); //죽음 처리 하기 위해 얻어온 컴포넌트
+        //playerState = GetComponent<PlayerState>(); //죽음 처리 하기 위해 얻어온 컴포넌트
+        cameraDefaultZoom = Camera.main.fieldOfView;
     }
-    */
+
 
     // Update is called once per frame
     void Update()
     {
-        //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
-        if (OptionManager.gameOptionOn)
-        {
-            return;
-        }
         /*
         //플레이어 죽음 처리, 일시정지 
         if (PauseManager.gamePause || playerState.isDead)
@@ -55,13 +54,24 @@ public class FireScript : MonoBehaviour
         else
         {
             //연발
-            if (Input.GetKey(KeyCode.Mouse0))
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
                 CreateBullet();
             }
         }
         //------------------------------------------------------------------------------------
-
+        if (Input.GetKey(KeyCode.Mouse1))
+        {
+            if (toggle == true)
+            {
+                Camera.main.fieldOfView = cameraDefaultZoom;
+            }
+            else
+            {
+                Camera.main.fieldOfView = 10;
+            }
+            toggle = !toggle;
+        }
     }
 
     //----------------------함수 정리----------------------------------------------------

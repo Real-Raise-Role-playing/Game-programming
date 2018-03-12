@@ -8,7 +8,7 @@ public class Inventory : MonoBehaviour
     public static Inventory instance;
     public Transform slot;
     public List<Slot> slotScripts = new List<Slot>();
-
+    public static int itemCount = Constants.startItemCount;
     //드레그 스크립트
     public Transform draggingItem;
     public Slot enteredSlot;
@@ -25,7 +25,7 @@ public class Inventory : MonoBehaviour
         SlotMake(5, 5, 0.04f); 
 
         //아이템 데이터베이스 최대 갯수 Add
-         AddItem(3);
+         AddItem(itemCount);
     }
 
     void SlotMake(int xCount, int yCount, float xInterval)
@@ -68,7 +68,7 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void AddItem(int number)
+    public void AddItem(int number)
     {
         for (int i = 0; i < number; i++)
         {

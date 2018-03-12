@@ -18,13 +18,8 @@ public class CameraControl : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
-        if (OptionManager.gameOptionOn)
-        {
-            transform.eulerAngles.Normalize();
-            return;
-        }
         float mouseMoveValueX = Input.GetAxis("Mouse X");
         float mouseMoveValueY = Input.GetAxis("Mouse Y");
 

@@ -1,17 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using UnityEngine.UI;
+using UnityEngine.UI;
 
-public class ItemCountManager : MonoBehaviour {
- //   Text ItemCount;
-
- //   // Use this for initialization
- //   void Start () {
- //       ItemCount = GetComponent<Text>();
- //   }
-	
-	//// Update is called once per frame
-	//void Update () {
- //   }
+public class ItemCountManager : MonoBehaviour
+{
+    Text ItemCount;
+    Slot ParentSlot;
+    // Use this for initialization
+    void Awake()
+    {
+        ParentSlot = GetComponentInParent<Slot>();
+        ItemCount = GetComponent<Text>();
+    }
+    void Start()
+    {
+        ItemCount.text = ParentSlot.item.itemCount.ToString();
+    }
 }

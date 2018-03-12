@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-
 public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerExitHandler, IEndDragHandler
 {
     public int number;
     public ItemManager item;
-
     public void OnDrag(PointerEventData data)
     {
         if (transform.childCount > 0)
