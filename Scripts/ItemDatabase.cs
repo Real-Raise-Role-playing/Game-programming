@@ -5,6 +5,7 @@ using UnityEngine;
 public class ItemDatabase : MonoBehaviour {
     public static ItemDatabase instance;
     public List<ItemManager> items = new List<ItemManager>();
+    public int itemCount = Constants.startItemCount;
 
     void Awake()
     {

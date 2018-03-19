@@ -12,7 +12,6 @@ public class OptionManager : MonoBehaviour
     CharaterMove characterMoveScrpt = null;
     CameraControl cameraControlScript = null;
 
-
     void Start()
     {
         ParentCC = GetComponent<CharacterController>();
@@ -41,17 +40,15 @@ public class OptionManager : MonoBehaviour
                 }
             }
             */
-            //아이템 줍기 시전
-            //if (Input.GetKey(KeyCode.F))
-            //{
-            //    Inventory.instance.
-            //}
 
+            //인벤토리 on/off
             if (Input.GetKeyDown(KeyCode.I))
             {
                 InventoryOn = !InventoryOn;
                 if (InventoryOn == true)
                 {
+                    //추후에 position.x 값을 수정해야함 화면크기마다 다를거로 생각
+                    InventoryObj.transform.position = new Vector3(875f, InventoryObj.transform.position.y, InventoryObj.transform.position.z);
                     InventoryObj.SetActive(true);
                     //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
                     fireScript.enabled = false;
