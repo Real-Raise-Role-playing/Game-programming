@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemDatabase : MonoBehaviour {
+public class ItemDatabase : MonoBehaviour
+{
     public static ItemDatabase instance;
     public List<ItemManager> items = new List<ItemManager>();
     public int itemCount = Constants.startItemCount;
@@ -21,9 +22,10 @@ public class ItemDatabase : MonoBehaviour {
         Add("apple", 1, 50, "Delicious Apple", 3, ItemType.Consumption);
     }
 
-public void Add(string itemName, int itemValue, int itemPrice, string itemDesc, int itemCount, ItemType itemType)
+    public void Add(string itemName, int itemValue, int itemPrice, string itemDesc, int itemCount, ItemType itemType)
     {
         items.Add(new ItemManager(itemName, itemValue, itemPrice, itemDesc, itemType, itemCount, Resources.Load<Sprite>("ItemImages/" + itemName)));
         //Debug.Log("itemName : "+itemName);
     }
+    
 }

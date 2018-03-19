@@ -22,8 +22,8 @@ public class Inventory : MonoBehaviour
     {
         //X축 ,Y축 갯수, X축간격
         SlotMake(5, 5, 0.04f);
-        //아이템 데이터베이스 최대 갯수 Add
-        AddItem(ItemDatabase.instance.itemCount);
+        //아이템 데이터베이스 시작 갯수 Add
+        AddItem(Constants.startItemCount);
     }
 
     void SlotMake(int xCount, int yCount, float xInterval)
