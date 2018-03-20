@@ -44,17 +44,16 @@ public class OptionManager : MonoBehaviour
             //인벤토리 on/off
             if (Input.GetKeyDown(KeyCode.I))
             {
+                //Debug.Log("Screen.width : "+ Screen.width);
                 InventoryOn = !InventoryOn;
                 if (InventoryOn == true)
                 {
-                    //추후에 position.x 값을 수정해야함 화면크기마다 다를거로 생각
-                    InventoryObj.transform.position = new Vector3(875f, InventoryObj.transform.position.y, InventoryObj.transform.position.z);
+                    InventoryObj.transform.position = new Vector3((Screen.width-(Screen.width/5)), InventoryObj.transform.position.y, InventoryObj.transform.position.z);
                     InventoryObj.SetActive(true);
                     //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
                     fireScript.enabled = false;
                     characterMoveScrpt.enabled = false;
                     cameraControlScript.enabled = false;
-                    //Time.timeScale = 0.0f;
                 }
                 else
                 {
@@ -63,7 +62,6 @@ public class OptionManager : MonoBehaviour
                     fireScript.enabled = true;
                     characterMoveScrpt.enabled = true;
                     cameraControlScript.enabled = true;
-                    //Time.timeScale = 1.0f;
                 }
             }
         }
