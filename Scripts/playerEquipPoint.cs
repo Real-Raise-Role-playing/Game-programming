@@ -6,12 +6,12 @@ public class playerEquipPoint : MonoBehaviour {
     GameObject player;
     GameObject EquipPoint;
     bool isPlayerEnter;
-    CharaterMove playerMove;
+    CharacterMove playerMove;
 	// Use this for initialization
 	void Awake () {
         player = GameObject.FindGameObjectWithTag("Player");
         EquipPoint = GameObject.FindGameObjectWithTag("EquipPoint");
-        playerMove = player.GetComponent<CharaterMove>();
+        playerMove = player.GetComponent<CharacterMove>();
     }
 	
 	// Update is called once per frame

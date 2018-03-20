@@ -9,14 +9,14 @@ public class OptionManager : MonoBehaviour
 
 
     FireScript fireScript = null;
-    CharaterMove characterMoveScrpt = null;
+    CharacterMove characterMoveScrpt = null;
     CameraControl cameraControlScript = null;
 
     void Start()
     {
         ParentCC = GetComponent<CharacterController>();
         fireScript = GetComponent<FireScript>();
-        characterMoveScrpt = GetComponent<CharaterMove>();
+        characterMoveScrpt = GetComponent<CharacterMove>();
         cameraControlScript = GetComponentInChildren<CameraControl>();
     }
     private bool InventoryOn = false;
