@@ -11,7 +11,7 @@ public class FireScript : MonoBehaviour
     public Transform fireTransform;
     
     private bool SingleShot = true;
-
+    private float nextFire = 0.0f;
     float cameraDefaultZoom;
     bool toggle = false;
     /*
@@ -21,6 +21,7 @@ public class FireScript : MonoBehaviour
     void Start()
     {
         //playerState = GetComponent<PlayerState>(); //죽음 처리 하기 위해 얻어온 컴포넌트
+        this.enabled = GetComponent<PhotonView>().isMine;
         cameraDefaultZoom = Camera.main.fieldOfView;
     }
 
@@ -48,15 +49,23 @@ public class FireScript : MonoBehaviour
             //단발
             if (Input.GetMouseButtonDown(0))
             {
-                CreateBullet();
+                if (Time.time > nextFire)
+                {
+                    nextFire = Time.time + Constants.m16FireSpeed;
+                    CreateBullet();
+                }
             }
         }
         else
         {
             //연발
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (Input.GetMouseButton(0))
             {
-                CreateBullet();
+                if (Time.time > nextFire)
+                {
+                    nextFire = Time.time + Constants.m16FireSpeed;
+                    CreateBullet();
+                }
             }
         }
         //------------------------------------------------------------------------------------

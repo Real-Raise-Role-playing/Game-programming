@@ -7,7 +7,6 @@ public class OptionManager : MonoBehaviour
     public GameObject InventoryObj = null;
     CharacterController ParentCC = null;
 
-
     FireScript fireScript = null;
     CharacterMove characterMoveScrpt = null;
     CameraControl cameraControlScript = null;

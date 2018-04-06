@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityStandardAssets.Utility;
+//SmoothFollow 스크립트를 사용하기 위한 네임스페이스 추가
 //상수화 해놓을 수.
 static class Constants
 {
@@ -19,12 +20,17 @@ static class Constants
     //FireScript 관련 상수
     public const float forwardPower = 20.0f;
     public const float upPower = 5.0f;
+    public const float m16FireSpeed = 0.2f;
 
+    //Inventory 관련 상수
     public const int startItemCount = 3;
 }
 
-public class CharacterMove : MonoBehaviour
+public class CharacterMove : Photon.MonoBehaviour
 {
+    public static CharacterMove instance;
+
+
     CharacterController characterController = null;
     public Transform cameraTransform;
     public float moveSpeed = Constants.DefaultMoveSpeed;
@@ -33,14 +39,34 @@ public class CharacterMove : MonoBehaviour
     private float yVelocity = Constants.Default_yVelocity;
     private float jumpCount = 0.0f;
     Vector3 moveDirection;
+    //
+    public PhotonView pv = null;
+    public Transform camPivot;
     // Use this for initialization
     void Awake()
     {
+        instance = this;
         characterController = GetComponent<CharacterController>();
     }
 
+    void Start()
+    {
+        this.enabled = GetComponent<PhotonView>().isMine;
+
+        pv = GetComponent<PhotonView>();
+        if (pv.isMine)
+        {
+            Camera.main.GetComponent<CameraControl>().Player = this.gameObject;
+            Camera.main.GetComponent<CameraControl>().enabled = true;
+            Camera.main.GetComponent<SmoothFollow>().target = camPivot;
+        }
+    }
+
+
     void FixedUpdate()
     {
+        //if (!pv.isMine) { return; }
+
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
         moveDirection = new Vector3(x, 0, z);
@@ -51,7 +77,7 @@ public class CharacterMove : MonoBehaviour
 
         //점프 관련 함수
         jumpCheck();
-        
+
         yVelocity += (gravity * Time.deltaTime);
         moveDirection.y = yVelocity;
         characterController.Move(moveDirection * Time.deltaTime);
@@ -83,7 +109,8 @@ public class CharacterMove : MonoBehaviour
         }
         moveDirection *= moveSpeed;
     }
-    void jumpCheck() {
+    void jumpCheck()
+    {
         if (characterController.isGrounded == true)
         {
             yVelocity = Constants.Default_yVelocity;
