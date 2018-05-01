@@ -2,13 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon;
-public class PhotonInit : Photon.MonoBehaviour
-//public class PhotonInit : MonoBehaviour
+public class PhotonInit : Photon.PunBehaviour
 {
+    public static PhotonInit instance;
     void Awake()
     {
+        if (instance != null)
+        {
+            DestroyImmediate(gameObject);
+            return;
+        }
+        DontDestroyOnLoad(gameObject);
+        instance = this;
+        PhotonNetwork.automaticallySyncScene = true;
         //PhotonNetwork.logLevel = NetworkLogLevel.Full;
 
+    }
+    void Start()
+    {
         //Connect to the main photon server. This is the only IP and port we ever need to set(!)
         if (!PhotonNetwork.connected)
             PhotonNetwork.ConnectUsingSettings("v1.0"); // version of the game/demo. used to separate older clients from newer ones (e.g. if incompatible)
@@ -20,7 +31,6 @@ public class PhotonInit : Photon.MonoBehaviour
         Camera.main.farClipPlane = Camera.main.nearClipPlane + 0.1f;
 
     }
-
     private string roomName = "newRoom";
     private Vector2 scrollPos = Vector2.zero;
 
