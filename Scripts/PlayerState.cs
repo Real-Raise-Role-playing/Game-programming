@@ -70,42 +70,62 @@ public class PlayerState : Photon.PunBehaviour
         }
         else if (collisionLayer == LayerMask.NameToLayer("Player") && this.gameObject != other.gameObject)
         {
-            //int playerMax = PunTeams.PlayersPerTeam[PunTeams.Team.red].Count + PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count;
-            //for (int i = 0; i < playerMax; i++)
+            //GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            //GameObject selectPlayer = null;
+            Rigidbody otherRb = other.gameObject.GetComponent<Rigidbody>();
+            otherRb.isKinematic = false;
+            rb.isKinematic = false;
+            PhotonView otPV = other.transform.GetComponent<PhotonView>();
+            PhotonPlayer otherphotonPlayer = PhotonPlayer.Find(otPV.ownerId);
+            PhotonPlayer myphotonPlayer = PhotonPlayer.Find(pv.ownerId);
+            state = "팀 불가능";
+            if (otherphotonPlayer.GetTeam() == myphotonPlayer.GetTeam())
+            {
+                state = "팀 식별 가능";
+            }
+            //state = photonPlayer.ID.ToString();
+            //for (int i = 0; i < players.Length; i++)
             //{
-            //    if (PhotonNetwork.playerList[i].name == other.gameObject.name) {
+            //    if (players[i].GetComponent<PhotonView>().viewID == otPV.viewID)
+            //    {
+            //        state = "찾음";
+            //        selectPlayer = players[i];
+            //        break;
+            //    }
+            //}
+            //Rigidbody selectRb = selectPlayer.GetComponent<Rigidbody>();
+
+            //otherTeamNum = (otPV.viewID / 1000) % 2 == 0 ? 2 : 1;
+            //PhotonPlayer pl2 = PhotonPlayer.Find(otPV.viewID);
+            //foreach (PhotonPlayer pl in PhotonNetwork.playerList)
+            //{
+            //    state = pl.UserId;
+            //    if (pl.UserId == otPV.viewID.ToString())
+            //    {
             //        state = "찾았다.";
             //    }
             //}
-            PhotonView otPV = other.transform.GetComponent<PhotonView>();
-            otherTeamNum = otPV.viewID;
-            foreach (PhotonPlayer pl in PhotonNetwork.playerList)
-            {
-                if (pl.ID == otPV.viewID)
-                {
-                    state = "찾았다.";
-                }
-            }
+            //if (otPV.instantiationData == pv.instantiationData)
+            //{
+            //    state = "같은 데이터를 넣어주었음..";
+            //}
             //pv.RPC("TaggedPlayer", PhotonTargets.Others, TeamNum);
-            check = "일단 플레이어끼리 접근";
             //otherName = other.transform.gameObject.name;
             //other.transform.gameObject.GetPhotonView
-            PlayerState ps = other.transform.gameObject.GetComponent<PlayerState>();
-            otherName = ps.UserId;
-            //PlayerState ps = other.gameObject.GetComponent<PlayerState>();
-            Rigidbody otherRb = other.gameObject.GetComponent<Rigidbody>();
+            PlayerState ps = other.gameObject.GetComponent<PlayerState>();
+            otherName = otPV.gameObject.name;
+            //otherName = ps.UserId;
             myTeamNum = this.TeamNum;
-            //otherTeamNum = ps.TeamNum;
-            //otherTeamNum = other.gameObject.GetComponent<PlayerState>().TeamNum;
-            if (ps.TeamNum == this.TeamNum)
+            if (otherTeamNum == myTeamNum)
             {
                 check = "우리팀 접근 성공";
-                otherRb.isKinematic = false;
-                rb.isKinematic = false;
+                //otherRb.isKinematic = false;
+                //rb.isKinematic = false;
                 if (ps.groggy)
                 {
                     if (Input.GetKeyDown(KeyCode.F))
                     {
+                        check = "살리기 성공";
                         ps.currHp = 40;
                         ps.SetPlayerVisible(true, PLAYERSTATE.GROGGY);
                         ps.groggy = false;
@@ -142,7 +162,7 @@ public class PlayerState : Photon.PunBehaviour
         GUILayout.Label("\n");
         GUILayout.Label("\n");
         GUILayout.Label("\n");
-        GUILayout.Label("접촉? : "+ check + "상태 : " + state + " 내 ID : " + UserId);
+        GUILayout.Label("접촉? : "+ check + " state : " + state + " 내 ID : " + UserId);
     }
 
     //private void OnCollisionExit(Collision other)
