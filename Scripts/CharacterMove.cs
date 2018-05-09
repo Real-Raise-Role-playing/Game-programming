@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterMove : Photon.PunBehaviour
+public class CharacterMove : Photon.MonoBehaviour
 {
     public Animator anim; //Anim
 
@@ -108,8 +108,58 @@ public class CharacterMove : Photon.PunBehaviour
             anim.SetBool("crawl", crawl);
             anim.SetBool("sit", sit);
             anim.SetBool("isWalk", isWalk);
+
+            //AnimBool("run", run);
+            //AnimBool("aim", aim);
+            //AnimBool("crawl", crawl);
+            //AnimBool("sit", sit);
+            //AnimBool("isWalk", isWalk);
         }
     } // End of Update
+    
+    void AnimPlay(string animName, int layer ,float time)
+    {
+        anim.Play(animName, layer, time);
+        pv.RPC("otherAnimPlay", PhotonTargets.Others, animName, layer, time);
+    }
+    [PunRPC]
+    void otherAnimPlay(string animName, int layer, float time)
+    {
+        anim.Play(animName, layer, time);
+    }
+
+    void AnimBool(string animName, bool check)
+    {
+        anim.SetBool(animName, check);
+        pv.RPC("otherAnimBool", PhotonTargets.Others, animName, check);
+    }
+    [PunRPC]
+    void otherAnimBool(string animName, bool check)
+    {
+        if (animName == "run")
+        {
+            run = check;
+        }
+        else if (animName == "aim")
+        {
+            aim = check;
+        }
+        else if (animName == "crawl")
+        {
+            crawl = check;
+        }
+        else if (animName == "sit")
+        {
+            sit = check;
+        }
+        else
+        {
+            isWalk = check;
+        }
+        anim.SetBool(animName, check);
+    }
+
+    
 
     void animCheck(float x, float z)
     {
@@ -129,7 +179,7 @@ public class CharacterMove : Photon.PunBehaviour
         //점프
         if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
         {
-            anim.Play("JUMP01", -1, 0f);
+            AnimPlay("JUMP01", -1, 0f);
             //점프 애니메이션 수정
             yVelocity = jumpSpeed;
             jumpCount++;
@@ -147,37 +197,28 @@ public class CharacterMove : Photon.PunBehaviour
         //근접 공격
         if (Input.GetKeyDown(KeyCode.V))
         {
-            anim.Play("MELEE_ATTACK", -1, 0f);
+            AnimPlay("MELEE_ATTACK", -1, 0f);
         }
 
         //-----------------------------------------                                                                 
         //에임 공격
-
-        if (aim == false && Input.GetMouseButtonDown(1))
+        if (!aim && Input.GetMouseButtonDown(1))
         {
-
-            anim.Play("AIM", -1, 0f);
-
+            AnimPlay("AIM", -1, 0f);
             aim = true;
-
-
-        }
-
-        else if (aim == true && Input.GetMouseButton(0))
+        } else if (aim && Input.GetMouseButton(0))
         {
-            anim.Play("AIM_SHOT", -1, 0f);
-        }
-
-        else if (aim == true && Input.GetMouseButtonDown(1))
+            AnimPlay("AIM_SHOT", -1, 0f);
+        } else if (aim && Input.GetMouseButtonDown(1))
         {
             aim = false;
         }
         //-----------------------------------------
         //논 에임 공격
-        if (aim == false && Input.GetMouseButtonDown(0))
+        if (!aim && Input.GetMouseButtonDown(0))
         /*aim == false && Input.GetMouseButtonDown(0)*/
         {
-            anim.Play("NONE_AIM", -1, 0f);
+            AnimPlay("NONE_AIM", -1, 0f);
         }
         //-----------------------------------------
 
@@ -185,14 +226,14 @@ public class CharacterMove : Photon.PunBehaviour
         // 앉기
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            anim.Play("sit_down", -1, 0f);
+            AnimPlay("sit_down", -1, 0f);
             moveSpeed = Constants.SitMoveSpeed;
             sit = true;
 
         }
         else if (Input.GetKeyUp(KeyCode.LeftControl))
         {
-            anim.Play("sit_up", -1, 0f);
+            AnimPlay("sit_up", -1, 0f);
             moveSpeed = Constants.DefaultMoveSpeed;
             sit = false;
         }
@@ -220,7 +261,7 @@ public class CharacterMove : Photon.PunBehaviour
     }
     void jumpCheck()
     {
-        
+
         if (characterController.isGrounded == true)
         {
             yVelocity = Constants.Default_yVelocity;

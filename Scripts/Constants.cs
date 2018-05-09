@@ -6,10 +6,10 @@ using UnityEngine;
 public static class Constants
 {
     //moveSpeed 관련 상수
-    public const float DefaultMoveSpeed = 30.0f;
-    public const float MaxMoveSpeed = 50.0f;
-    public const float AddMoveSpeed = 2.0f;
-    public const float SitMoveSpeed = 15.0f; // 앉았을시 캐릭터의 속도
+    public const float DefaultMoveSpeed = 15.0f;
+    public const float MaxMoveSpeed = 20.0f;
+    public const float AddMoveSpeed = 0.8f;
+    public const float SitMoveSpeed = 6.0f; // 앉았을시 캐릭터의 속도
 
     //Jump & 캐릭터 Y축 관련 상수
     public const float Default_yVelocity = 0.0f;
