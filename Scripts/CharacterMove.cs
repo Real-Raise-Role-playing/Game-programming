@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CharacterMove : Photon.MonoBehaviour
 {
+    //이동 변수
+    float x,z;
     public Animator anim; //Anim
 
     Transform tr = null;
@@ -88,8 +90,8 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         else
         {
-            float x = Input.GetAxis("Horizontal");
-            float z = Input.GetAxis("Vertical");
+            x = Input.GetAxis("Horizontal");
+            z = Input.GetAxis("Vertical");
 
             moveDirection = new Vector3(x, 0, z);
             moveDirection = cameraTransform.TransformDirection(moveDirection);
@@ -101,22 +103,43 @@ public class CharacterMove : Photon.MonoBehaviour
             characterController.Move(moveDirection * Time.deltaTime);
 
             //-----------------------------------------
-            anim.SetFloat("inputH", x);
-            anim.SetFloat("inputV", z);
-            anim.SetBool("run", run);
-            anim.SetBool("aim", aim);
-            anim.SetBool("crawl", crawl);
-            anim.SetBool("sit", sit);
-            anim.SetBool("isWalk", isWalk);
+            //anim.SetFloat("inputH", x);
+            //anim.SetFloat("inputV", z);
+            //anim.SetBool("run", run);
+            //anim.SetBool("aim", aim);
+            //anim.SetBool("crawl", crawl);
+            //anim.SetBool("sit", sit);
+            //anim.SetBool("isWalk", isWalk);
 
-            //AnimBool("run", run);
-            //AnimBool("aim", aim);
-            //AnimBool("crawl", crawl);
-            //AnimBool("sit", sit);
-            //AnimBool("isWalk", isWalk);
+            AnimFloat("inputH", x);
+            AnimFloat("inputV", z);
+            AnimBool("run", run);
+            AnimBool("aim", aim);
+            AnimBool("crawl", crawl);
+            AnimBool("sit", sit);
+            AnimBool("isWalk", isWalk);
         }
     } // End of Update
-    
+
+    void AnimFloat(string name, float value)
+    {
+        anim.SetFloat(name, value);
+        pv.RPC("otherAnimFloat", PhotonTargets.Others, name, value);
+    }
+    [PunRPC]
+    void otherAnimFloat(string name, float value)
+    {
+        //if (name == "inputH")
+        //{
+        //    x = value;
+        //}
+        //else
+        //{
+        //    z = value;
+        //}
+        anim.SetFloat(name, value);
+    }
+
     void AnimPlay(string animName, int layer ,float time)
     {
         anim.Play(animName, layer, time);

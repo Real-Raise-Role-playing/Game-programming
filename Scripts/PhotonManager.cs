@@ -5,11 +5,11 @@ using UnityEngine;
 public class PhotonManager : Photon.MonoBehaviour
 {
     public bool leaveCheck = false;
-    public string playerPrefabName = "US_Marine";
+    public string redTeamPlayerPrefabName = "PlayerRed";
+    public string blueTeamPlayerPrefabName = "PlayerBlue";
     public GameObject menuPos = null;
-    int teamNumView = 0;
     int ptNumView = 0;
-    string playerCheck = "공백";
+
     void OnJoinedRoom()
     {
         Debug.Log("룸접속");
@@ -22,22 +22,18 @@ public class PhotonManager : Photon.MonoBehaviour
         GameObject Player = null;
         //GameObject Player = PhotonNetwork.Instantiate(this.playerPrefabName, new Vector3(pos, 154.7f, pos), Quaternion.identity, 0);
         //캐릭 Spwan 관련
-        float pos = Random.Range(700.0f, 800.0f);
+        float posX = Random.Range(1400.0f, 1500.0f);
+        float posZ = Random.Range(1900.0f, 2000.0f);
 
-        if (PunTeams.PlayersPerTeam[PunTeams.Team.red].Count < PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count)
+        if (PunTeams.PlayersPerTeam[PunTeams.Team.red].Count <= PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count)
         {
-            Player = PhotonNetwork.Instantiate("PlayerRed", new Vector3(pos, 154.7f, pos), Quaternion.identity, 0);
+            Player = PhotonNetwork.Instantiate(redTeamPlayerPrefabName, new Vector3(posX, 154.7f, posZ), Quaternion.identity, 0);
             PhotonNetwork.player.SetTeam(PunTeams.Team.red);
         }
-        else if (PunTeams.PlayersPerTeam[PunTeams.Team.red].Count > PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count)
+        else //if (PunTeams.PlayersPerTeam[PunTeams.Team.red].Count > PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count)
         {
-            Player = PhotonNetwork.Instantiate("PlayerBlue", new Vector3(pos, 154.7f, pos), Quaternion.identity, 0);
+            Player = PhotonNetwork.Instantiate(blueTeamPlayerPrefabName, new Vector3(posX, 154.7f, posZ), Quaternion.identity, 0);
             PhotonNetwork.player.SetTeam(PunTeams.Team.blue);
-        }
-        else if (PunTeams.PlayersPerTeam[PunTeams.Team.red].Count == PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count)
-        {
-            Player = PhotonNetwork.Instantiate("PlayerRed", new Vector3(pos, 154.7f, pos), Quaternion.identity, 0);
-            PhotonNetwork.player.SetTeam(PunTeams.Team.red);
         }
         Player.name = PhotonNetwork.playerName;
         //메인카메라 관련
@@ -48,26 +44,15 @@ public class PhotonManager : Photon.MonoBehaviour
         Camera.main.transform.rotation = new Quaternion(camPivot.transform.rotation.x, camPivot.transform.rotation.y, camPivot.transform.rotation.z, camPivot.transform.rotation.w);
 
         //플레이어 스크립트 관련
-        CharacterMove PlayerMove = Player.GetComponent<CharacterMove>();
-        PlayerMove.enabled = true;
-        OptionManager PlayerOptionMG = Player.GetComponent<OptionManager>();
-        PlayerOptionMG.enabled = true;
-        FireScript PlayerFs = Player.GetComponent<FireScript>();
-        PlayerFs.enabled = true;
-        CheckCollider PlayerCC = Player.GetComponent<CheckCollider>();
-        PlayerCC.enabled = true;
-        PlayerState playerState = Player.GetComponent<PlayerState>();
-        playerState.enabled = true;
+        Player.GetComponent<CharacterMove>().enabled = true;
+        Player.GetComponent<OptionManager>().enabled = true;
+        Player.GetComponent<FireScript>().enabled = true;
+        Player.GetComponent<CheckCollider>().enabled = true;
+        Player.GetComponent<PlayerState>().enabled = true;
+        //Player.GetComponentInChildren<Rader>().enabled = true;
         PhotonView pv = Player.GetComponent<PhotonView>();
         ptNumView = pv.viewID;
-        PhotonNetwork.player.UserId = pv.viewID.ToString();
-        playerState.TeamNum = (pv.viewID / 1000) % 2 == 0 ? 2 : 1;
-        teamNumView = playerState.TeamNum;
-        playerCheck = playerState.check;
-        playerState.UserId = PhotonNetwork.playerName;
         //pv.RPC("TaggedPlayer",PhotonTargets.All, playerState.UserId);
-        Rader PlayerRader = Player.GetComponentInChildren<Rader>();
-        PlayerRader.enabled = true;
     }
 
     //[PunRPC]
@@ -148,7 +133,7 @@ public class PhotonManager : Photon.MonoBehaviour
     void OnGUI()
     {
         GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString());
-        GUILayout.Label("Team Num : " + teamNumView + " PhotonView ID : " + ptNumView + " 플레이어 접근 : " + playerCheck + " team : " + PhotonNetwork.player.GetTeam());
+        GUILayout.Label(" PhotonView ID : " + ptNumView + " team : " + PhotonNetwork.player.GetTeam());
         GUILayout.Label("Name : " + PhotonNetwork.playerName);
         GUILayout.Label("Red : " + PunTeams.PlayersPerTeam[PunTeams.Team.red].Count + " Blue : "+ PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count);
         if (PhotonNetwork.room == null) return; //Only display this GUI when inside a room

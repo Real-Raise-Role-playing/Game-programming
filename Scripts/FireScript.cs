@@ -8,8 +8,8 @@ public class FireScript : Photon.MonoBehaviour
     public float forwardPower = Constants.forwardPower;
     public float upPower = Constants.upPower;
     public Transform fireTransform;
-    //GameObject fireObject = null;
-    //public Rigidbody fireObjectRb = null;
+    GameObject fireObject = null;
+    public Rigidbody fireObjectRb = null;
     private bool SingleShot = true;
     private float nextFire = 0.0f;
     float cameraDefaultZoom;
@@ -23,7 +23,8 @@ public class FireScript : Photon.MonoBehaviour
 
     private void Awake()
     {
-        //fireObject = (GameObject)Resources.Load("Bullet1");
+        fireObject = (GameObject)Resources.Load("Bullet1");
+        fireObjectRb = fireObject.GetComponent<Rigidbody>();
         pv = GetComponent<PhotonView>();
         sfx = GetComponent<AudioSource>();
         kar98 = Resources.Load<AudioClip>("Sounds\\Kar98");
@@ -77,7 +78,6 @@ public class FireScript : Photon.MonoBehaviour
                 {
                     nextFire = Time.time + Constants.m16FireSpeed;
                     CreateBullet();
-                    //pv.RPC("FireOther", PhotonTargets.All, fireTransform.position, fireTransform.rotation);
                     sfx.PlayOneShot(kar98,1.0f);
                 }
             }
@@ -91,7 +91,6 @@ public class FireScript : Photon.MonoBehaviour
                 {
                     nextFire = Time.time + Constants.m16FireSpeed;
                     CreateBullet();
-                    //pv.RPC("FireOther", PhotonTargets.All, fireTransform.position, fireTransform.rotation);
                     sfx.PlayOneShot(kar98,1.0f);
                 }
             }
@@ -111,30 +110,42 @@ public class FireScript : Photon.MonoBehaviour
         }
     }
 
-    void CreateBullet()
-    {
-        GameObject obj = PhotonNetwork.Instantiate("Bullet1", fireTransform.position, fireTransform.rotation, 0) as GameObject; // Instantiate 는 new와 같은 의미 
-        Rigidbody rb = obj.GetComponent<Rigidbody>();
-        rb.velocity = (cameraTransform.forward * forwardPower) + (Vector3.up * upPower);
-    }
-    //------------------------------------------------------------------------------------
-    //[PunRPC]
-    //void fireOther(Vector3 pos,Quaternion rot)
+    //포톤 네트워크 방법
+    //void CreateBullet()
     //{
-    //    GameObject obj = PhotonNetwork.Instantiate("Bullet1", pos, rot, 0) as GameObject; // Instantiate 는 new와 같은 의미 
-    //    //GameObject obj = Instantiate(fireObject) as GameObject; // Instantiate 는 new와 같은 의미 
-    //    //obj.transform.position = pos;
+    //    GameObject obj = PhotonNetwork.Instantiate("Bullet1", fireTransform.position, fireTransform.rotation, 0) as GameObject; // Instantiate 는 new와 같은 의미 
     //    Rigidbody rb = obj.GetComponent<Rigidbody>();
     //    rb.velocity = (cameraTransform.forward * forwardPower) + (Vector3.up * upPower);
     //}
-    
-    //[PunRPC]
-    //public void FireOther(Vector3 pos, Quaternion rot)//, PhotonMessageInfo info)
+    //------------------------------------------------------------------------------------
+    void CreateBullet()
+    {
+        Rigidbody shellInstance = Instantiate(fireObjectRb, fireTransform.position, fireTransform.rotation) as Rigidbody;
+        shellInstance.velocity = (cameraTransform.forward * forwardPower) + (Vector3.up * upPower);
+        photonView.RPC("FireOther", PhotonTargets.Others, fireTransform.position, shellInstance.velocity);
+    }
+
+    [PunRPC]
+    void FireOther(Vector3 pos, Vector3 velocity)
+    {
+        Rigidbody shellInstance = Instantiate(fireObjectRb, pos, fireTransform.rotation) as Rigidbody;
+        shellInstance.velocity = velocity;
+    }
+
+    //Phton View를 Bullet1에 넣어 구별 하기위해 시도
+    //void CreateBullet()
     //{
-    //    //GameObject obj = PhotonNetwork.Instantiate("Bullet1", pos, rot, 0) as GameObject; // Instantiate 는 new와 같은 의미 
-    //    //GameObject obj = Instantiate(fireObject, pos, rot); 
-    //    //Rigidbody obj = Instantiate(fireObject,pos,rot) as Rigidbody; // Instantiate 는 new와 같은 의미 
-    //    Rigidbody obj = Instantiate(fireObjectRb, pos, rot) as Rigidbody;
-    //    obj.velocity = (cameraTransform.forward * forwardPower) + (Vector3.up * upPower);
+    //    GameObject obj = PhotonNetwork.Instantiate("Bullet1", fireTransform.position, fireTransform.rotation, 0) as GameObject; // Instantiate 는 new와 같은 의미 
+    //    Rigidbody rb = obj.GetComponent<Rigidbody>();
+    //    rb.velocity = (cameraTransform.forward * forwardPower) + (Vector3.up * upPower);
+    //    photonView.RPC("FireOther", PhotonTargets.Others, fireTransform.position, rb.velocity);
+    //}
+
+    //[PunRPC]
+    //void FireOther(Vector3 pos, Vector3 velocity)
+    //{
+    //    GameObject obj = PhotonNetwork.Instantiate("Bullet1", fireTransform.position, fireTransform.rotation, 0) as GameObject; // Instantiate 는 new와 같은 의미 
+    //    Rigidbody rb = obj.GetComponent<Rigidbody>();
+    //    rb.velocity = velocity;
     //}
 }

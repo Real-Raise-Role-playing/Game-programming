@@ -52,20 +52,8 @@ public class PlayerState : Photon.MonoBehaviour
         int collisionLayer = other.gameObject.layer;
         if (collisionLayer == LayerMask.NameToLayer("Bullet"))
         {
-            //PhotonView otPV = other.transform.GetComponent<PhotonView>();
-            ////내총알 이라면 피해 없음
-            //if ((otPV.viewID / 1000) == (pv.viewID / 1000))
-            //{
-            //    return;
-            //}
-            //if (this.gameObject)
-            //{
-            //    Debug.Log(this.gameObject.name);
-            //    return;
-            //}
             if (currHp > 0)
             {
-                //currHp -= 20;
                 DamageByEnemy((currHp-20));
             }
             else if (currHp <= 0 && playerStateNum != Constants.GROGGY)
@@ -100,6 +88,7 @@ public class PlayerState : Photon.MonoBehaviour
                 check = "우리팀 접근 성공";
                 if (otherPs.playerStateNum == Constants.GROGGY)
                 {
+                    Debug.Log("F접근 전");
                     if (Input.GetKeyDown(KeyCode.F))
                     {
                         check = "살리기 성공";
