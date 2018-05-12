@@ -1,20 +1,24 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class NetworkCharacterMove : Photon.MonoBehaviour {
-
     private Vector3 correctPlayerPos;
     private Quaternion correctPlayerRot;
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (!photonView.isMine)
+    PhotonView pv = null;
+	// Use this for initialization
+	void Start () {
+        pv = GetComponent<PhotonView>();
+	}
+	
+	// Update is called once per frame
+	void Update () {
+        if (!pv.isMine)
         {
             transform.position = Vector3.Lerp(transform.position, this.correctPlayerPos, Time.deltaTime * 5);
             transform.rotation = Quaternion.Lerp(transform.rotation, this.correctPlayerRot, Time.deltaTime * 5);
         }
-    }
-
+	}
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.isWriting)
