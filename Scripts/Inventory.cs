@@ -5,21 +5,23 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    public static Inventory instance;
+    //public static Inventory instance;
+    ItemDatabase idb = null;
     public Transform slot;
     public List<Slot> slotScripts = new List<Slot>();
     //드레그 스크립트
     public Transform draggingItem;
     public Slot enteredSlot;
 
-    void Awake()
-    {
-        instance = this;
-    }
+    //void Awake()
+    //{
+    //    instance = this;
+    //}
 
     // Use this for initialization
     void Start()
     {
+        idb = transform.root.GetComponentInChildren<ItemDatabase>();
         //X축 ,Y축 갯수, X축간격
         SlotMake(5, 5, 0.04f);
         //아이템 데이터베이스 시작 갯수 Add
@@ -50,6 +52,7 @@ public class Inventory : MonoBehaviour
 
             }
         }
+        slot.gameObject.SetActive(false);
     }
 
     public void ItemImageChange(Slot _slot)
@@ -72,7 +75,7 @@ public class Inventory : MonoBehaviour
         {
             if (slotScripts[i].item.itemValue == 0)
             {
-                slotScripts[i].item = ItemDatabase.instance.items[i];
+                slotScripts[i].item = idb.items[i];
                 ItemImageChange(slotScripts[i]);
             }
         }
@@ -86,5 +89,3 @@ public class Inventory : MonoBehaviour
         }
     }
 }
-
-

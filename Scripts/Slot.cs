@@ -2,45 +2,63 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerExitHandler, IEndDragHandler
 {
+    Inventory iv = null;
     public int number;
     public ItemManager item;
+    public ItemDatabase itemDataBase;
+
+    void Start()
+    {
+        iv = GetComponentInParent<Inventory>();
+        itemDataBase = transform.root.GetComponentInChildren<ItemDatabase>();
+    }
+
     public void OnDrag(PointerEventData data)
     {
         if (transform.childCount > 0)
         {
-            transform.GetChild(0).SetParent(Inventory.instance.draggingItem, true);
+            transform.GetChild(0).SetParent(iv.draggingItem, true);
         }
-        Inventory.instance.draggingItem.GetChild(0).position = data.position;
+        iv.draggingItem.GetChild(0).position = data.position;
     }
     public void OnPointerEnter(PointerEventData data)
     {
-        Inventory.instance.enteredSlot = this;
+        iv.enteredSlot = this;
     }
 
     public void OnPointerExit(PointerEventData data)
     {
-        Inventory.instance.enteredSlot = null;
+        iv.enteredSlot = null;
     }
 
     public void OnEndDrag(PointerEventData data)
     {
-        Inventory.instance.draggingItem.GetChild(0).SetParent(transform, true);
+        iv.draggingItem.GetChild(0).SetParent(transform, true);
         transform.GetChild(0).localPosition = Vector3.zero;
         //**자식 오브젝트 아이템 이미지 레이케스트를 꺼야함;;;(마우스 Enter, Exit시 오류 발생가능)
-        if (Inventory.instance.enteredSlot != null)
+        if (iv.enteredSlot != null)
         {
             //임시 객체 선언 후 위치 교환
             ItemManager tempItem = item;
-            item = Inventory.instance.enteredSlot.item;
-            Inventory.instance.enteredSlot.item = tempItem;
+            item = iv.enteredSlot.item;
+            iv.enteredSlot.item = tempItem;
             //아이템 위치 교환 시 위치 번호를 맞추기 위함
             item.itemCount = (number + 1);
-            Inventory.instance.enteredSlot.item.itemCount = (Inventory.instance.enteredSlot.number + 1);
+            iv.enteredSlot.item.itemCount = (iv.enteredSlot.number + 1);
             //이미지 교환
-            Inventory.instance.ItemImageChange(this);
-            Inventory.instance.ItemImageChange(Inventory.instance.enteredSlot);
+            iv.ItemImageChange(this);
+            iv.ItemImageChange(iv.enteredSlot);
+        }
+        if (itemDataBase.itemObjs != null)
+        {
+            itemDataBase.Swap(itemDataBase.itemObjs, (item.itemCount - 1), (iv.enteredSlot.item.itemCount - 1));
+            //foreach (GameObject item in itemDataBase.itemObjs)
+            //{
+            //    Debug.Log(item.name);
+            //}
         }
     }
 }

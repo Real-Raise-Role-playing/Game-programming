@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Photon;
 public class PhotonInit : Photon.PunBehaviour
 {
@@ -23,16 +24,15 @@ public class PhotonInit : Photon.PunBehaviour
         //Connect to the main photon server. This is the only IP and port we ever need to set(!)
         if (!PhotonNetwork.connected)
             PhotonNetwork.ConnectUsingSettings("v1.0"); // version of the game/demo. used to separate older clients from newer ones (e.g. if incompatible)
-
+        PhotonNetwork.automaticallySyncScene = true;
         //Load name from PlayerPrefs
         PhotonNetwork.playerName = PlayerPrefs.GetString("playerName", "Guest" + Random.Range(1, 9999));
-
         //메인 메뉴를 보여주기위한 시야를 좁힘
         Camera.main.farClipPlane = Camera.main.nearClipPlane + 0.1f;
-
     }
     private string roomName = "newRoom";
     private Vector2 scrollPos = Vector2.zero;
+    public InputField userId;
 
     void OnGUI()
     {
