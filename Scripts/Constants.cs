@@ -18,8 +18,8 @@ public static class Constants
     public const float jumpSpeed = 7.0f;
 
     //FireScript 관련 상수
-    public const float forwardPower = 50.0f;
-    public const float upPower = 20.0f;
+    public const float forwardPower = 80.0f;
+    public const float upPower = 5.0f;
     public const float m16FireSpeed = 0.2f;
     public const float kar98FireSpeed = 1.0f;
 

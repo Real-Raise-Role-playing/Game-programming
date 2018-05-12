@@ -13,6 +13,7 @@ public class CharacterMove : Photon.MonoBehaviour
     Rader rader = null;
     CharacterController characterController = null;
     PlayerState ps = null;
+    OptionManager om = null;
     public Transform cameraTransform;
 
     public float moveSpeed = Constants.DefaultMoveSpeed;
@@ -44,6 +45,7 @@ public class CharacterMove : Photon.MonoBehaviour
         tr = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         pv = GetComponent<PhotonView>();
+        om = GetComponent<OptionManager>();
         pv.synchronization = ViewSynchronization.UnreliableOnChange;
 
         if (pv.isMine)
@@ -54,7 +56,7 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         else
         {
-            rb.isKinematic = false;
+            rb.isKinematic = true;
             this.enabled = false;
         }
         //삭제요망
@@ -90,6 +92,8 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         else
         {
+            if (!om.InventoryOn)
+            {
             x = Input.GetAxis("Horizontal");
             z = Input.GetAxis("Vertical");
 
@@ -101,6 +105,7 @@ public class CharacterMove : Photon.MonoBehaviour
             yVelocity += (gravity * Time.deltaTime);
             moveDirection.y = yVelocity;
             characterController.Move(moveDirection * Time.deltaTime);
+            }
 
             //-----------------------------------------
             //anim.SetFloat("inputH", x);
@@ -142,17 +147,29 @@ public class CharacterMove : Photon.MonoBehaviour
 
     void AnimPlay(string animName, int layer ,float time)
     {
+        if (om.InventoryOn) {
+            return;
+        }
         anim.Play(animName, layer, time);
         pv.RPC("otherAnimPlay", PhotonTargets.Others, animName, layer, time);
     }
     [PunRPC]
     void otherAnimPlay(string animName, int layer, float time)
     {
+        if (om.InventoryOn)
+        {
+            return;
+        }
         anim.Play(animName, layer, time);
     }
 
     void AnimBool(string animName, bool check)
     {
+        //인벤토리가 열리면 IDLE상태로 해주기위함.
+        if (om.InventoryOn)
+        {
+            check = false;
+        }
         anim.SetBool(animName, check);
         pv.RPC("otherAnimBool", PhotonTargets.Others, animName, check);
     }
@@ -195,7 +212,7 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         else
         {
-            rb.isKinematic = true;
+            //rb.isKinematic = true;
             isWalk = false;
         }
         //-----------------------------------------
@@ -206,7 +223,7 @@ public class CharacterMove : Photon.MonoBehaviour
             //점프 애니메이션 수정
             yVelocity = jumpSpeed;
             jumpCount++;
-            rb.isKinematic = false;
+            //rb.isKinematic = false;
             ps.isGrounded = false;
         }
         //if (characterController.isGrounded == true)
@@ -214,7 +231,7 @@ public class CharacterMove : Photon.MonoBehaviour
         {
             yVelocity = Constants.Default_yVelocity;
             jumpCount = 0.0f;
-            rb.isKinematic = true;
+            //rb.isKinematic = true;
         }
         //-----------------------------------------
         //근접 공격

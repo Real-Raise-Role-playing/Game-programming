@@ -78,7 +78,8 @@ public class FireScript : Photon.MonoBehaviour
                 {
                     nextFire = Time.time + Constants.m16FireSpeed;
                     CreateBullet();
-                    sfx.PlayOneShot(kar98,1.0f);
+                    //sfx.PlayOneShot(kar98,1.0f);
+                    kar98Sound();
                 }
             }
         }
@@ -91,7 +92,8 @@ public class FireScript : Photon.MonoBehaviour
                 {
                     nextFire = Time.time + Constants.m16FireSpeed;
                     CreateBullet();
-                    sfx.PlayOneShot(kar98,1.0f);
+                    //sfx.PlayOneShot(kar98,1.0f);
+                    kar98Sound();
                 }
             }
         }
@@ -108,6 +110,17 @@ public class FireScript : Photon.MonoBehaviour
             }
             toggle = !toggle;
         }
+    }
+
+    void kar98Sound()
+    {
+        sfx.PlayOneShot(kar98, 1.0f);
+        pv.RPC("otherkar98Sound", PhotonTargets.Others, null);
+    }
+    [PunRPC]
+    void otherkar98Sound()
+    {
+        sfx.PlayOneShot(kar98, 1.0f);
     }
 
     //포톤 네트워크 방법

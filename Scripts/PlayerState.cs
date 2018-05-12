@@ -15,7 +15,6 @@ public class PlayerState : Photon.MonoBehaviour
     private FireScript fireScript = null;
     private Rigidbody rb = null;
     private PhotonView pv = null;
-    private PhotonManager pm = null;
     //플레이어 상태
     //public bool isDead = false;
     //public bool groggy = false;
@@ -43,10 +42,6 @@ public class PlayerState : Photon.MonoBehaviour
         skinRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
     }
 
-    int myTeamNum = 0;
-    int otherTeamNum = 0;
-    string otherName = "미상";
-    string state = "미상";
     private void OnCollisionEnter(Collision other)
     {
         int collisionLayer = other.gameObject.layer;
@@ -54,21 +49,21 @@ public class PlayerState : Photon.MonoBehaviour
         {
             if (currHp > 0)
             {
-                DamageByEnemy((currHp-20));
+                DamageByEnemy((currHp-20), Constants.NONE);
             }
             else if (currHp <= 0 && playerStateNum != Constants.GROGGY)
             {
                 //일정 체력을 준다.
-                DamageByEnemy(40);
                 rb.isKinematic = false;
                 fireScript.enabled = false;
-                playerStateNum = Constants.GROGGY;
+                //playerStateNum = Constants.GROGGY;
                 SetPlayerVisible(false, Constants.GROGGY);
+                DamageByEnemy(40, Constants.GROGGY);
             }
             else if (currHp <= 0 && playerStateNum == Constants.GROGGY)
             {
-                DamageByEnemy(0);
-                SetPlayerVisible(false, Constants.DEAD);
+                DamageByEnemy(0, Constants.DEAD);
+                //SetPlayerVisible(false, Constants.DEAD);
                 playerStateNum = Constants.DEAD;
             }
         }
@@ -126,16 +121,29 @@ public class PlayerState : Photon.MonoBehaviour
     //    }
     //}
 
-    void DamageByEnemy(int myHealth)
+    void DamageByEnemy(int myHealth, int playerState)
     {
         currHp = myHealth;
-        pv.RPC("otherDamageByEnemy", PhotonTargets.Others, currHp);
+        playerStateNum = playerState;
+        pv.RPC("otherDamageByEnemy", PhotonTargets.Others, currHp, playerStateNum);
     }
     [PunRPC]
-    void otherDamageByEnemy(int myHealth) {
+    void otherDamageByEnemy(int myHealth, int playerState) {
         currHp = myHealth;
+        playerStateNum = playerState;
     }
-    
+
+    //void myState(int playerState)
+    //{
+    //    playerStateNum = playerState;
+    //    pv.RPC("otherMyState", PhotonTargets.Others, playerStateNum);
+    //}
+    //[PunRPC]
+    //void otherMyState(int playerState)
+    //{
+    //    playerStateNum = playerState;
+    //}
+
     void SetPlayerVisible(bool isVisible, int state)
     {
         if (state == Constants.GROGGY)

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour
 {
-    public float sensitivity = 300.0f;
+    public float sensitivity = 500.0f;
     float rotationX;
     float rotationY;
     float ZkeyPos = 0.78f;
@@ -16,17 +16,25 @@ public class CameraControl : MonoBehaviour
     public GameObject Player = null;
     PhotonView pv = null;
 
-    void Start()
-    {
-        PlayerCC = Player.GetComponent<CharacterController>();
-        PlayerBC = Player.GetComponent<BoxCollider>();
-        PlayerTr = Player.GetComponent<Transform>();
-        pv = Player.GetComponent<PhotonView>();
-    }
+    //void Start()
+    //{
+    //    PlayerCC = Player.GetComponent<CharacterController>();
+    //    PlayerBC = Player.GetComponent<BoxCollider>();
+    //    PlayerTr = Player.GetComponent<Transform>();
+    //    pv = Player.GetComponent<PhotonView>();
+    //}
 
     // Update is called once per frame
     void LateUpdate()
     {
+        if (PlayerTr == null || PlayerCC == null || PlayerBC == null || PlayerTr == null || pv == null)
+        {
+            PlayerTr = Player.GetComponent<Transform>();
+            PlayerCC = Player.GetComponent<CharacterController>();
+            PlayerBC = Player.GetComponent<BoxCollider>();
+            PlayerTr = Player.GetComponent<Transform>();
+            pv = Player.GetComponent<PhotonView>();
+        }
         if (!pv.isMine)
         {
             return;
