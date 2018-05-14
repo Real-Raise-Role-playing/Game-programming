@@ -22,8 +22,9 @@ public class PlayerState : Photon.MonoBehaviour
 
     //플레이어 속성
     public bool isGrounded = false;
-    [SerializeField]
-    private int currHp = 0;
+    //[SerializeField]
+    [HideInInspector]
+    public int currHp = 0;
     //[HideInInspector] public int initHp = 100;
 
     //플레이어 비활성화
@@ -47,11 +48,13 @@ public class PlayerState : Photon.MonoBehaviour
         int collisionLayer = other.gameObject.layer;
         if (collisionLayer == LayerMask.NameToLayer("Bullet"))
         {
-            if (currHp > 0)
+            string myTeam = PhotonNetwork.player.GetTeam().ToString();
+            Debug.Log("myTeam" + myTeam);
+            if (currHp > 20)
             {
                 DamageByEnemy((currHp-20), Constants.NONE);
             }
-            else if (currHp <= 0 && playerStateNum != Constants.GROGGY)
+            else if (currHp <= 20 && playerStateNum != Constants.NONE && myTeam == "red" && PunTeams.PlayersPerTeam[PunTeams.Team.red].Count > 1)
             {
                 //일정 체력을 준다.
                 rb.isKinematic = false;
@@ -60,11 +63,22 @@ public class PlayerState : Photon.MonoBehaviour
                 SetPlayerVisible(false, Constants.GROGGY);
                 DamageByEnemy(40, Constants.GROGGY);
             }
-            else if (currHp <= 0 && playerStateNum == Constants.GROGGY)
+            else if (currHp <= 20 && playerStateNum != Constants.NONE && myTeam == "blue" && PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count > 1)
             {
+                //일정 체력을 준다.
+                rb.isKinematic = false;
+                fireScript.enabled = false;
+                //playerStateNum = Constants.GROGGY;
+                SetPlayerVisible(false, Constants.GROGGY);
+                DamageByEnemy(40, Constants.GROGGY);
+            }
+            else if (currHp <= 20)
+            {
+                rb.isKinematic = false;
                 DamageByEnemy(0, Constants.DEAD);
-                //SetPlayerVisible(false, Constants.DEAD);
-                playerStateNum = Constants.DEAD;
+                fireScript.enabled = false;
+                //playerStateNum = Constants.DEAD;
+                SetPlayerVisible(false, Constants.DEAD);
             }
         }
         else if (collisionLayer == LayerMask.NameToLayer("Player") && this.gameObject != other.gameObject)
@@ -88,8 +102,8 @@ public class PlayerState : Photon.MonoBehaviour
                     {
                         check = "살리기 성공";
                         otherPs.currHp = 40;
-                        otherPs.SetPlayerVisible(true, Constants.GROGGY);
-                        otherPs.playerStateNum = Constants.NONE;
+                        otherPs.SetPlayerVisible(true, Constants.NONE);
+                        //otherPs.playerStateNum = Constants.NONE;
                         otherFs.enabled = true;
                         otherPs.rb.isKinematic = true;
                     }
@@ -144,36 +158,46 @@ public class PlayerState : Photon.MonoBehaviour
     //    playerStateNum = playerState;
     //}
 
-    void SetPlayerVisible(bool isVisible, int state)
+    void SetPlayerVisible(bool isVisible, int playerState)
     {
-        if (state == Constants.GROGGY)
+        playerStateNum = playerState;
+        if (playerState == Constants.GROGGY)
         {
             foreach (MeshRenderer _renderer in renderers)
             {
                 _renderer.enabled = isVisible;
             }
         }
-        else if (state == Constants.DEAD)
+        else if (playerState == Constants.DEAD)
         {
+            foreach (MeshRenderer _renderer in renderers)
+            {
+                _renderer.enabled = isVisible;
+            }
             foreach (SkinnedMeshRenderer _skinRenderers in skinRenderers)
             {
                 _skinRenderers.enabled = isVisible;
             }
         }
-        pv.RPC("otherSetPlayerVisible", PhotonTargets.Others, isVisible, state);
+        pv.RPC("otherSetPlayerVisible", PhotonTargets.Others, isVisible, playerState);
     }
     [PunRPC]
-    void otherSetPlayerVisible(bool isVisible, int state)
+    void otherSetPlayerVisible(bool isVisible, int playerState)
     {
-        if (state == Constants.GROGGY)
+        playerStateNum = playerState;
+        if (playerState == Constants.GROGGY)
         {
             foreach (MeshRenderer _renderer in renderers)
             {
                 _renderer.enabled = isVisible;
             }
         }
-        else if (state == Constants.DEAD)
+        else if (playerState == Constants.DEAD)
         {
+            foreach (MeshRenderer _renderer in renderers)
+            {
+                _renderer.enabled = isVisible;
+            }
             foreach (SkinnedMeshRenderer _skinRenderers in skinRenderers)
             {
                 _skinRenderers.enabled = isVisible;

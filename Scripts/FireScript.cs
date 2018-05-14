@@ -161,4 +161,17 @@ public class FireScript : Photon.MonoBehaviour
     //    Rigidbody rb = obj.GetComponent<Rigidbody>();
     //    rb.velocity = velocity;
     //}
+
+    //void CreateBullet()
+    //{
+    //    photonView.RPC("FireOther", PhotonTargets.All,null);
+    //}
+
+    //[PunRPC]
+    //void FireOther()
+    //{
+    //    GameObject obj = Instantiate(fireObject, fireTransform.position, fireTransform.rotation) as GameObject; // Instantiate 는 new와 같은 의미 
+    //    Rigidbody rb = obj.GetComponent<Rigidbody>();
+    //    fireObjectRb.velocity = (cameraTransform.forward * forwardPower) + (Vector3.up * upPower);
+    //}
 }

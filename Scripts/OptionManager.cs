@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 public class OptionManager : MonoBehaviour
 {
     //public static bool gameOptionOn = false;
     public GameObject InventoryObj = null;
     PlayerState ps = null;
     FireScript fireScript = null;
-    //CharacterMove characterMoveScrpt = null;
+    CharacterMove characterMoveScrpt = null;
     CameraControl cameraControlScript = null;
     PhotonView pv = null;
     //PlayerState playerState = null; //플레이어 죽음 처리
@@ -15,15 +16,15 @@ public class OptionManager : MonoBehaviour
 
     private void Awake()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        // Cursor visible
+        Cursor.visible = false;
         pv = GetComponent<PhotonView>();
-    }
-
-    void Start()
-    {
         ps = GetComponent<PlayerState>();
         fireScript = GetComponent<FireScript>();
-        //characterMoveScrpt = GetComponent<CharacterMove>();
-        cameraControlScript = GetComponentInChildren<CameraControl>();
+        characterMoveScrpt = GetComponent<CharacterMove>();
+        cameraControlScript = Camera.main.GetComponent<CameraControl>();
+        //cameraControlScript = GetComponentInChildren<CameraControl>();
     }
 
     void Update()
@@ -63,7 +64,6 @@ public class OptionManager : MonoBehaviour
                     InventoryObj.SetActive(true);
                     //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
                     fireScript.enabled = false;
-                    //characterMoveScrpt.enabled = false;
                     cameraControlScript.enabled = false;
                 }
                 else
@@ -71,7 +71,6 @@ public class OptionManager : MonoBehaviour
                     InventoryObj.SetActive(false);
                     //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
                     fireScript.enabled = true;
-                    //characterMoveScrpt.enabled = true;
                     cameraControlScript.enabled = true;
                     // Mouse Lock
                     Cursor.lockState = CursorLockMode.Locked;
