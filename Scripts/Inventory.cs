@@ -46,7 +46,8 @@ public class Inventory : MonoBehaviour
                 slotRect.anchorMax = new Vector2(xWidthRate * (x + 1) + xInterval * (x + 1), 1 - (yWidthRate * y + yInterval * (y + 1)));
                 slotRect.offsetMin = Vector2.zero;
                 slotRect.offsetMax = Vector2.zero;
-
+                //slotRect.transform.position = new Vector3(slotRect.transform.position.x, slotRect.transform.position.y, 0.0f);
+                newSlot.position = new Vector3(newSlot.position.x, newSlot.position.y, ((newSlot.position.z) - (newSlot.position.z)));
                 slotScripts.Add(newSlot.GetComponent<Slot>());
                 newSlot.GetComponent<Slot>().number = y * xCount + x;
 

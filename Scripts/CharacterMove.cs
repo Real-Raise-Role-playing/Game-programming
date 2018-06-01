@@ -13,7 +13,7 @@ public class CharacterMove : Photon.MonoBehaviour
     public float scopedFOV = 79f;
     private float normalFOV;
 
-    Transform tr = null;
+    //Transform tr = null;
     Rigidbody rb = null;
     //Rader rader = null;
     CharacterController characterController = null;
@@ -31,10 +31,6 @@ public class CharacterMove : Photon.MonoBehaviour
     public PhotonView pv = null;
     public Transform camPivot;
 
-    //삭제요망
-    private Vector3 currPos = Vector3.zero;
-    private Quaternion currRot = Quaternion.identity;
-
 
     //bool 값을 통해 run aim을 구별
     [HideInInspector]
@@ -48,11 +44,10 @@ public class CharacterMove : Photon.MonoBehaviour
     {
         //this.enabled = GetComponent<PhotonView>().isMine;
         ps = GetComponent<PlayerState>();
-        tr = GetComponent<Transform>();
+        //tr = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         pv = GetComponent<PhotonView>();
         om = GetComponent<OptionManager>();
-        pv.synchronization = ViewSynchronization.UnreliableOnChange;
 
         if (pv.isMine)
         {
@@ -63,11 +58,8 @@ public class CharacterMove : Photon.MonoBehaviour
         else
         {
             rb.isKinematic = true;
-            this.enabled = false;
+            //this.enabled = false;
         }
-        //삭제요망
-        currPos = tr.position;
-        currRot = tr.rotation;
     }
 
     void Start()
@@ -78,16 +70,14 @@ public class CharacterMove : Photon.MonoBehaviour
         normalFOV = Camera.main.fieldOfView;
     }
 
-    void FixedUpdate()
+    void Update()
     {
-        if (ps.playerStateNum == Constants.DEAD)
-        {
-            return;
-        }
+        //if (ps.playerStateNum == Constants.DEAD)
+        //{
+        //    return;
+        //}
         if (!pv.isMine)
         {
-            //tr.position = Vector3.Lerp(tr.position, currPos, Time.deltaTime * 0.5f);
-            //tr.rotation = Quaternion.Lerp(tr.rotation, currRot, Time.deltaTime * 0.5f);
             return;
         }
         else
@@ -105,6 +95,8 @@ public class CharacterMove : Photon.MonoBehaviour
                 yVelocity += (gravity * Time.deltaTime);
                 moveDirection.y = yVelocity;
                 characterController.Move(moveDirection * Time.deltaTime);
+                //Camera.main.transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+                //rb.transform.eulerAngles = new Vector3(0,Camera.main.transform.rotation.eulerAngles);
             }
 
             //-----------------------------------------
@@ -115,7 +107,6 @@ public class CharacterMove : Photon.MonoBehaviour
             //anim.SetBool("crawl", crawl);
             //anim.SetBool("sit", sit);
             //anim.SetBool("isWalk", isWalk);
-
             AnimFloat("inputH", x);
             AnimFloat("inputV", z);
             AnimBool("run", run);
@@ -125,7 +116,7 @@ public class CharacterMove : Photon.MonoBehaviour
             AnimBool("isWalk", isWalk);
         }
     } // End of Update
-
+    
     void AnimFloat(string name, float value)
     {
         anim.SetFloat(name, value);
@@ -199,9 +190,7 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         anim.SetBool(animName, check);
     }
-
-
-
+    
     void animCheck(float x, float z)
     {
         //-----------------------------------------

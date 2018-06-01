@@ -10,31 +10,34 @@ public class CameraControl : MonoBehaviour
     float ZkeyPos = 0.78f;
     float CamDefaultPos = 3.08f;
     private bool keyZ = true;
-    CharacterController PlayerCC = null;
-    BoxCollider PlayerBC = null;
-    Transform PlayerTr = null;
-    public GameObject Player = null;
-    PhotonView pv = null;
 
-    //void Start()
-    //{
-    //    PlayerCC = Player.GetComponent<CharacterController>();
-    //    PlayerBC = Player.GetComponent<BoxCollider>();
-    //    PlayerTr = Player.GetComponent<Transform>();
-    //    pv = Player.GetComponent<PhotonView>();
+    public CharacterController PlayerCC = null;
+    public Rigidbody PlayerRb = null;
+    public Transform PlayerTr = null;
+    //public Transform UICamTr = null;
+    public GameObject Player = null;
+    public PhotonView pv = null;
+
+    void OnEnable()
+    {
+        
+        //UICamTr = Player.transform.Find("UICamera").gameObject.GetComponent<Transform>();
+        PlayerCC = Player.GetComponent<CharacterController>();
+        PlayerTr = Player.GetComponent<Transform>();
+        PlayerRb = Player.GetComponent<Rigidbody>();
+        pv = Player.GetComponent<PhotonView>();
+    }
+
+    //void OnDisable() {
+    //    PlayerCC = null;
+    //    PlayerTr = null;
+    //    PlayerRb = null;
+    //    pv = null;
     //}
 
     // Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
-        if (PlayerTr == null || PlayerCC == null || PlayerBC == null || PlayerTr == null || pv == null)
-        {
-            PlayerTr = Player.GetComponent<Transform>();
-            PlayerCC = Player.GetComponent<CharacterController>();
-            PlayerBC = Player.GetComponent<BoxCollider>();
-            PlayerTr = Player.GetComponent<Transform>();
-            pv = Player.GetComponent<PhotonView>();
-        }
         if (!pv.isMine)
         {
             return;
@@ -43,15 +46,18 @@ public class CameraControl : MonoBehaviour
         {
             float mouseMoveValueX = Input.GetAxis("Mouse X");
             float mouseMoveValueY = Input.GetAxis("Mouse Y");
-
             rotationY += mouseMoveValueX * sensitivity * Time.deltaTime;
             rotationX += mouseMoveValueY * sensitivity * Time.deltaTime;
             rotationX %= 360;
             rotationY %= 360;
-            //rotationX = Mathf.Clamp(rotationX, -40.0f, 80.0f);
+            rotationX = Mathf.Clamp(rotationX, -40.0f, 80.0f);
 
-            PlayerTr.eulerAngles = new Vector3(0.0f, rotationY, 0.0f);
+            PlayerTr.eulerAngles = new Vector3(PlayerTr.eulerAngles.x, rotationY, PlayerTr.eulerAngles.z);
+            //PlayerTr.eulerAngles = new Vector3(PlayerTr.rotation.eulerAngles.x, rotationY, PlayerTr.rotation.eulerAngles.z);
             transform.eulerAngles = new Vector3(-rotationX, rotationY, 0.0f);
+            //UICamTr.eulerAngles = new Vector3(-rotationX, rotationY, 0.0f);
+            //transform.root.eulerAngles = new Vector3(-rotationX, rotationY, 0.0f);
+            //transform.root.Rotate(-rotationX, rotationY, 0.0f);
             if (Input.GetKeyDown(KeyCode.Z))
             {
                 if (keyZ)
@@ -60,14 +66,14 @@ public class CameraControl : MonoBehaviour
                     transform.position = new Vector3(Player.transform.position.x, ZkeyPos, Player.transform.position.z);
                     //transform.SetParent(transform.ge,true);
                     PlayerCC.height = 1.0f;
-                    PlayerBC.size = new Vector3(1.5f, 1.0f, 1.5f);
+                    //PlayerBC.size = new Vector3(1.5f, 1.0f, 1.5f);
                 }
                 else
                 {
                     //Debug.Log("CamDefaultPos : " + CamDefaultPos);
                     transform.position = new Vector3(Player.transform.position.x, CamDefaultPos, Player.transform.position.z);
                     PlayerCC.height = 2.0f;
-                    PlayerBC.size = new Vector3(1.5f, 2.0f, 1.5f);
+                    //PlayerBC.size = new Vector3(1.5f, 2.0f, 1.5f);
                 }
                 keyZ = !keyZ;
             }

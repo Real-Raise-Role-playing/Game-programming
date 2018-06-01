@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CheckCollider : MonoBehaviour
+public class CheckCollider : Photon.MonoBehaviour
 {
     private ItemDatabase idb = null;
     private Inventory iv = null;
@@ -39,23 +39,43 @@ public class CheckCollider : MonoBehaviour
             //먹은 아이템이 무기면
             else if (idb.selectItem.itemType == ItemType.Equipment)
             {
-                itemObj.transform.SetParent(transform);
-                //itemObj.transform.position = transform.FindChild("Bip001 Prop1").position;
+                //transform.Find("Cylinder002").transform.Find(itemName).gameObject.SetActive(true);
+                pv.RPC("EquipObject", PhotonTargets.All, "Cylinder002", itemName, true);
+                //Debug.Log("item 찾은 이름 : "+ transform.Find("Cylinder002").transform.Find(itemName).gameObject.name);
                 Debug.Log("무기 먹음");
+                pv.RPC("acquireObject", PhotonTargets.All, false);
             }
             //먹은 아이템이 장식품이면
             else if (idb.selectItem.itemType == ItemType.Misc)
             {
                 Debug.Log("장식품 먹음");
+                //itemObj.SetActive(false);
+                pv.RPC("acquireObject",PhotonTargets.All, false);
             }
             //먹은 아이템이 소모품이면
             else
             {
                 Debug.Log("소모품 먹음");
-                itemObj.SetActive(false);
+                //itemObj.SetActive(false);
+                pv.RPC("acquireObject",PhotonTargets.All,false);
             }
             //idb.itemObjs.Add(itemObj);
             isGetItemflag = false;
+        }
+    }
+
+    //장비를 모두 입혀놓고 true, false 하는 것으로
+    [PunRPC]
+    void EquipObject(string parentName, string childName, bool state)
+    {
+        transform.Find(parentName).transform.Find(childName).gameObject.SetActive(state);
+    }
+
+    [PunRPC]
+    void acquireObject(bool State) {
+        if (itemObj != null)
+        {
+            itemObj.SetActive(State);
         }
     }
 
@@ -77,7 +97,7 @@ public class CheckCollider : MonoBehaviour
         if (LayerMask.LayerToName(layerIndex) == "Item")
         {
             isGetItemflag = false;
-            itemName = "";
+            itemName = string.Empty;
             itemObj = null;
         }
     }

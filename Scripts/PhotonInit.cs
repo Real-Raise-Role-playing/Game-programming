@@ -136,7 +136,7 @@ public class PhotonInit : Photon.PunBehaviour
         GUILayout.EndArea();
     }
 
-    public void OnConnectedToMaster()
+    public override void OnConnectedToMaster()
     {
         // this method gets called by PUN, if "Auto Join Lobby" is off.
         // this demo needs to join the lobby, to show available rooms!
