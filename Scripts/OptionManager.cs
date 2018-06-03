@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class OptionManager : MonoBehaviour
 {
-    public GameObject menuPos;
+    GameObject menuPos;
     //public static bool gameOptionOn = false;
     public GameObject InventoryObj = null;
     PlayerState ps = null;
@@ -35,6 +35,8 @@ public class OptionManager : MonoBehaviour
     private void Awake()
     {
         LockCursor();
+        menuPos = GameObject.Find("MenuPos");
+        InventoryObj = GameObject.Find("Inventory");
         pv = GetComponent<PhotonView>();
         ps = GetComponent<PlayerState>();
         Iv = GetComponentInChildren<Inventory>();
@@ -44,14 +46,41 @@ public class OptionManager : MonoBehaviour
         //cameraControlScript = GetComponentInChildren<CameraControl>();
     }
 
-
+    private void OnGUI()
+    {
+        GUILayout.Label(" ");
+        GUILayout.Label(" ");
+        if (GUILayout.Button("Leave Room"))
+        {
+            // Mouse Lock
+            Cursor.lockState = CursorLockMode.None;
+            // Cursor visible
+            Cursor.visible = true;
+            Camera.main.transform.SetParent(menuPos.transform);
+            Camera.main.GetComponent<CameraControl>().enabled = false;
+            Camera.main.farClipPlane = Camera.main.nearClipPlane + 0.1f;
+            Camera.main.transform.position = Vector3.zero;
+            Camera.main.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+            int veiwId = transform.GetComponent<PhotonView>().viewID;
+            Debug.Log("나간놈 ID : " + veiwId);
+            PhotonNetwork.Destroy(PhotonView.Find(veiwId).gameObject);
+            PhotonNetwork.LeaveRoom();
+        }
+    }
 
     void Update()
     {
-        if (!pv.isMine) { return; }
-        //캐릭터가 땅위에 있을때만 가능..
-        if (ps.isGrounded)
+        if (!pv.isMine || ps.playerStateNum == Constants.DEAD) { return; }
+        //과연 Update()에서 계속 체크를 하면서 false를 시키는게 속도에 지장이 없을까
+        /*
+        if (ps.playerStateNum == Constants.DEAD)
         {
+            this.enabled = false;
+        }
+        */
+        //캐릭터가 땅위에 있을때만 가능..
+        //if (ps.isGrounded)
+        //{
             /*ESC 따로
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -69,7 +98,7 @@ public class OptionManager : MonoBehaviour
             */
 
             //인벤토리 on/off
-            if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.I))
             {
                 //Debug.Log("Screen.width : "+ Screen.width);
                 InventoryOn = !InventoryOn;
@@ -82,7 +111,7 @@ public class OptionManager : MonoBehaviour
                     InventoryObj.transform.position = new Vector3((Screen.width - (Screen.width / 5)), InventoryObj.transform.position.y, 0.0f);
                     foreach (Slot item in Iv.slotScripts)
                     {
-                        item.transform.position = new Vector3(item.transform.position.x, item.transform.position.y, 0.0f); ;
+                        item.transform.position = new Vector3(item.transform.position.x, item.transform.position.y, 0.0f);
                     }
                     //--------------------------------------
 
@@ -100,6 +129,6 @@ public class OptionManager : MonoBehaviour
                     cameraControlScript.enabled = true;
                 }
             }
-        }
+        //}
     }
 }

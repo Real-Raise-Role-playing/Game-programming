@@ -30,7 +30,7 @@ public class CharacterMove : Photon.MonoBehaviour
     //
     public PhotonView pv = null;
     public Transform camPivot;
-
+    private SliderBarControl sliderBarControl = null;
 
     //bool 값을 통해 run aim을 구별
     [HideInInspector]
@@ -116,7 +116,7 @@ public class CharacterMove : Photon.MonoBehaviour
             AnimBool("isWalk", isWalk);
         }
     } // End of Update
-    
+
     void AnimFloat(string name, float value)
     {
         anim.SetFloat(name, value);
@@ -190,7 +190,7 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         anim.SetBool(animName, check);
     }
-    
+
     void animCheck(float x, float z)
     {
         //-----------------------------------------
@@ -286,6 +286,13 @@ public class CharacterMove : Photon.MonoBehaviour
         //-----------------------------------------
         if (Input.GetKeyDown(KeyCode.LeftShift))// && om.HangerCheck)
         {
+            /*Debug.Log("HangerBarSlider.value : " + sliderBarControl.HangerBarSlider.value);
+            if (sliderBarControl.HangerBarSlider.value <= 0.5f)
+            {
+                Debug.Log("moveSpeed : " + moveSpeed);
+                moveSpeed = Constants.DefaultMoveSpeed;
+            }
+            */
             moveSpeed += Constants.AddMoveSpeed;
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
             if (moveSpeed >= Constants.MaxMoveSpeed)

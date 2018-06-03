@@ -12,7 +12,7 @@ public class Inventory : MonoBehaviour
     //드레그 스크립트
     public Transform draggingItem;
     public Slot enteredSlot;
-
+    private PhotonView pv = null;
     //void Awake()
     //{
     //    instance = this;
@@ -21,11 +21,16 @@ public class Inventory : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        idb = transform.root.GetComponentInChildren<ItemDatabase>();
-        //X축 ,Y축 갯수, X축간격
-        SlotMake(5, 5, 0.04f);
-        //아이템 데이터베이스 시작 갯수 Add
-        AddItem(Constants.startItemCount);
+        pv = transform.root.GetComponent<PhotonView>();
+        if (pv.isMine)
+        {
+            idb = transform.root.GetComponentInChildren<ItemDatabase>();
+            //X축 ,Y축 갯수, X축간격
+            SlotMake(5, 5, 0.04f);
+            //아이템 데이터베이스 시작 갯수 Add
+            AddItem(Constants.startItemCount);
+        }
+        
     }
 
     void SlotMake(int xCount, int yCount, float xInterval)

@@ -20,12 +20,19 @@ public class CameraControl : MonoBehaviour
 
     void OnEnable()
     {
-        
-        //UICamTr = Player.transform.Find("UICamera").gameObject.GetComponent<Transform>();
-        PlayerCC = Player.GetComponent<CharacterController>();
-        PlayerTr = Player.GetComponent<Transform>();
-        PlayerRb = Player.GetComponent<Rigidbody>();
         pv = Player.GetComponent<PhotonView>();
+        if (pv.isMine)
+        {
+            //UICamTr = Player.transform.Find("UICamera").gameObject.GetComponent<Transform>();
+            PlayerCC = Player.GetComponent<CharacterController>();
+            PlayerTr = Player.GetComponent<Transform>();
+            PlayerRb = Player.GetComponent<Rigidbody>();
+        }
+        else
+        {
+            this.enabled = false;
+        }
+        
     }
 
     //void OnDisable() {

@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class CheckCollider : Photon.MonoBehaviour
 {
+    public GameObject bagState = null;
+    public GameObject gunState = null;
+    public GameObject helmetsState = null;
+    public GameObject armorState = null;
+    public GameObject etcState = null;
+
     private ItemDatabase idb = null;
     private Inventory iv = null;
     //아이템 줍기 가능 상태 여부 Flag
@@ -40,7 +46,8 @@ public class CheckCollider : Photon.MonoBehaviour
             else if (idb.selectItem.itemType == ItemType.Equipment)
             {
                 //transform.Find("Cylinder002").transform.Find(itemName).gameObject.SetActive(true);
-                pv.RPC("EquipObject", PhotonTargets.All, "Cylinder002", itemName, true);
+                //pv.RPC("EquipObject", PhotonTargets.All, "Cylinder002", itemName, true);
+                pv.RPC("EquipObject", PhotonTargets.All, itemName, true);
                 //Debug.Log("item 찾은 이름 : "+ transform.Find("Cylinder002").transform.Find(itemName).gameObject.name);
                 Debug.Log("무기 먹음");
                 pv.RPC("acquireObject", PhotonTargets.All, false);
@@ -65,10 +72,31 @@ public class CheckCollider : Photon.MonoBehaviour
     }
 
     //장비를 모두 입혀놓고 true, false 하는 것으로
+    //[PunRPC]
+    //void EquipObject(string parentName, string childName, bool state)
+    //{
+    //    Debug.Log("GetSiblingIndex : " + transform.Find(parentName).gameObject.name);
+    //    transform.Find(parentName).transform.Find(childName).gameObject.SetActive(state);
+    //}    
     [PunRPC]
-    void EquipObject(string parentName, string childName, bool state)
+    void EquipObject( string itemName, bool state)
     {
-        transform.Find(parentName).transform.Find(childName).gameObject.SetActive(state);
+        if (itemName == "helmets")
+        {
+            helmetsState.SetActive(state);
+        }
+        else if (itemName == "bag")
+        {
+            bagState.SetActive(state);
+        }
+        else if (itemName == "rings")
+        {
+            gunState.SetActive(state);
+        }
+        else if (itemName == "b_t_01")
+        {
+            armorState.SetActive(state);
+        }
     }
 
     [PunRPC]

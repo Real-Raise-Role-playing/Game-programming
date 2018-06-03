@@ -13,10 +13,9 @@ public class PlayerState : Photon.MonoBehaviour
     //NONE = 0 , GROGGY = 1 , DEAD = 3
     public int playerStateNum = 0;
     private FireScript fireScript = null;
-    private Rigidbody rb = null;
     private PhotonView pv = null;
-    private CapsuleCollider CC = null;
     public GameObject hpBarObj = null;
+    private Rigidbody rb = null;
 
     //플레이어 상태
     //public bool isDead = false;
@@ -28,23 +27,31 @@ public class PlayerState : Photon.MonoBehaviour
     //[SerializeField]
     [HideInInspector]
     public int currHp = 0;
-    //[HideInInspector] public int initHp = 100;
 
     //플레이어 비활성화
-    private MeshRenderer[] renderers;
-    private SkinnedMeshRenderer[] skinRenderers;
+    public MeshRenderer[] renderers;
+    public SkinnedMeshRenderer[] skinRenderers;
+    public Canvas[] canvas = null;
 
-
+    public CapsuleCollider capsuleCollider = null;
+    public CameraControl CamCon = null;
+    public CharacterMove CharMove = null;
+    public OptionManager optionManager = null;
     void Awake()
     {
-        //pm = transform.Find("PhotonManager").gameObject.GetComponent<PhotonManager>();
-        CC = GetComponent<CapsuleCollider>();
+        //player들이 동적할당이 되기전에 가져오는 것인가..?
+        CamCon = Camera.main.GetComponent<CameraControl>();
+
+        optionManager = GetComponent<OptionManager>();
+        CharMove = GetComponent<CharacterMove>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
         fireScript = GetComponent<FireScript>();
         currHp = Constants.initHp;
         pv = GetComponent<PhotonView>();
         renderers = GetComponentsInChildren<MeshRenderer>();
         skinRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+        canvas = GetComponentsInChildren<Canvas>();
     }
 
     private void OnCollisionEnter(Collision other)
@@ -58,60 +65,46 @@ public class PlayerState : Photon.MonoBehaviour
         {
             Destroy(other.gameObject);
         }
-        if (collisionLayer == LayerMask.NameToLayer("Bullet"))
-        {
-            Destroy(other.gameObject);
-            string myTeam = PhotonNetwork.player.GetTeam().ToString();
-            if (currHp > 20)
-            {
-                //DamageByEnemy((currHp-20), Constants.NONE);
-                //currHp -= 20;
-                Debug.Log("1번 충돌");
-                pv.RPC("DamageByEnemy", PhotonTargets.All, (currHp - 20), Constants.NONE);
+        //if (collisionLayer == LayerMask.NameToLayer("Bullet"))
+        //{
+        //    Destroy(other.gameObject);
+        //    string myTeam = PhotonNetwork.player.GetTeam().ToString();
+        //    if (currHp > 20)
+        //    {
+        //        Debug.Log("1번 충돌");
+        //        pv.RPC("DamageByEnemy", PhotonTargets.All, (currHp - 20), Constants.NONE);
 
-            }
-            else if (currHp <= 20 && playerStateNum != Constants.NONE && myTeam == "red" && PunTeams.PlayersPerTeam[PunTeams.Team.red].Count > 1)
-            {
-                //일정 체력을 준다.
-                rb.isKinematic = false;
-                fireScript.enabled = false;
-                //playerStateNum = Constants.GROGGY;
-                //SetPlayerVisible(false, Constants.GROGGY);
-                //DamageByEnemy(40, Constants.GROGGY);
-
-                Debug.Log("2번 충돌");
-                pv.RPC("SetPlayerVisible", PhotonTargets.All, false, Constants.GROGGY);
-                //currHp = 40;
-                pv.RPC("DamageByEnemy", PhotonTargets.All, 40, Constants.GROGGY);
-            }
-            else if (currHp <= 20 && playerStateNum != Constants.NONE && myTeam == "blue" && PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count > 1)
-            {
-                //일정 체력을 준다.
-                rb.isKinematic = false;
-                fireScript.enabled = false;
-                //playerStateNum = Constants.GROGGY;
-                //SetPlayerVisible(false, Constants.GROGGY);
-                //DamageByEnemy(40, Constants.GROGGY);
-
-                Debug.Log("3번 충돌");
-                pv.RPC("SetPlayerVisible", PhotonTargets.All, false, Constants.GROGGY);
-                //currHp = 40;
-                pv.RPC("DamageByEnemy", PhotonTargets.All, 40, Constants.GROGGY);
-            }
-            else if (currHp <= 20)
-            {
-                rb.isKinematic = false;
-                fireScript.enabled = false;
-                //playerStateNum = Constants.DEAD;
-                //DamageByEnemy(0, Constants.DEAD);
-                //SetPlayerVisible(false, Constants.DEAD);
-
-                Debug.Log("4번 충돌");
-                pv.RPC("SetPlayerVisible", PhotonTargets.All, false, Constants.DEAD);
-                //currHp = 0;
-                pv.RPC("DamageByEnemy", PhotonTargets.All, 0, Constants.DEAD);
-            }
-        }
+        //    }
+        //    else if (currHp <= 20 && playerStateNum != Constants.NONE && myTeam == "red" && PunTeams.PlayersPerTeam[PunTeams.Team.red].Count > 1)
+        //    {
+        //        //일정 체력을 준다.
+        //        rb.isKinematic = false;
+        //        fireScript.enabled = false;
+        //        Debug.Log("2번 충돌");
+        //        pv.RPC("SetPlayerVisible", PhotonTargets.All, false, Constants.GROGGY);
+        //        //currHp = 40;
+        //        pv.RPC("DamageByEnemy", PhotonTargets.All, 40, Constants.GROGGY);
+        //    }
+        //    else if (currHp <= 20 && playerStateNum != Constants.NONE && myTeam == "blue" && PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count > 1)
+        //    {
+        //        //일정 체력을 준다.
+        //        rb.isKinematic = false;
+        //        fireScript.enabled = false;
+        //        Debug.Log("3번 충돌");
+        //        pv.RPC("SetPlayerVisible", PhotonTargets.All, false, Constants.GROGGY);
+        //        //currHp = 40;
+        //        pv.RPC("DamageByEnemy", PhotonTargets.All, 40, Constants.GROGGY);
+        //    }
+        //    else if (currHp <= 20)
+        //    {
+        //        rb.isKinematic = false;
+        //        fireScript.enabled = false;
+        //        Debug.Log("4번 충돌");
+        //        pv.RPC("SetPlayerVisible", PhotonTargets.All, false, Constants.DEAD);
+        //        //currHp = 0;
+        //        pv.RPC("DamageByEnemy", PhotonTargets.All, 0, Constants.DEAD);
+        //    }
+        //}
         else if (collisionLayer == LayerMask.NameToLayer("Player") && this.gameObject != other.gameObject)
         {
             PhotonView otPV = other.transform.GetComponent<PhotonView>();
@@ -151,21 +144,6 @@ public class PlayerState : Photon.MonoBehaviour
         }
     }
 
-    //RPC보단 자주 사용될때
-    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    //{
-    //    if (stream.isWriting)
-    //    {
-    //        stream.SendNext(this.currHp);
-    //        stream.SendNext(this.playerStateNum);
-    //    }
-    //    else
-    //    {
-    //        this.currHp = (int)stream.ReceiveNext();
-    //        this.playerStateNum = (int)stream.ReceiveNext();
-    //    }
-    //}
-
     [PunRPC]
     void DamageByEnemy(int myHealth, int playerState)
     {
@@ -186,8 +164,19 @@ public class PlayerState : Photon.MonoBehaviour
         }
         else if (playerState == Constants.DEAD)
         {
+            // Mouse Lock
+            Cursor.lockState = CursorLockMode.None;
+            // Cursor visible
+            Cursor.visible = true;
+            //optionManager.enabled = false;
+            CharMove.enabled = false;
+            CamCon.enabled = false;
             hpBarObj.SetActive(false);
-            CC.enabled = false;
+            capsuleCollider.enabled = false;
+            foreach (Canvas _canvas in canvas)
+            {
+                _canvas.enabled = isVisible;
+            }
             foreach (MeshRenderer _renderer in renderers)
             {
                 _renderer.enabled = isVisible;

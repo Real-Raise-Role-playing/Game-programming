@@ -16,6 +16,7 @@ public class PhotonInit : Photon.PunBehaviour
         DontDestroyOnLoad(gameObject);
         instance = this;
         PhotonNetwork.automaticallySyncScene = true;
+        PhotonNetwork.CrcCheckEnabled = true;
         //PhotonNetwork.logLevel = NetworkLogLevel.Full;
 
     }

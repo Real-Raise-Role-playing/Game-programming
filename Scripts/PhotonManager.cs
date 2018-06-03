@@ -6,30 +6,15 @@ public class PhotonManager : Photon.MonoBehaviour
 {
     const string redTeamPlayerPrefabName = "PlayerRed";
     const string blueTeamPlayerPrefabName = "PlayerBlue";
-    public GameObject menuPos = null;
     //public List<string> PlayerListManager = new List<string>();
     public PhotonPlayer[] players = null;
     public GameObject[] playerObjs = null;
     public List<PlayersManager> playerListManager = new List<PlayersManager>();
-
-    [PunRPC]
-    void updatePlayerList() {
-        players = PhotonNetwork.playerList;
-    }
-
-    [PunRPC]
-    void updatePlayerObjs()
-    {
-        playerObjs = GameObject.FindGameObjectsWithTag("Player");
-    }
     
     void OnJoinedRoom()
     {
         Debug.Log("룸접속");
         CreatePlayer();
-       
-        //photonView.RPC("updatePlayerObjs", PhotonTargets.AllBuffered, null);
-        //Camera.main.GetComponent<CameraControl>().enabled = true;
     }
     GameObject Player = null;
 
@@ -42,10 +27,10 @@ public class PhotonManager : Photon.MonoBehaviour
         //GameObject Player = null;
 
         //플레이어 위치------------------------------
-        float posX = Random.Range(1500.0f, 1600.0f);
-        float posY = 2.0f;
+        float posX = Random.Range(1350.0f, 1400.0f);
+        float posY = 65.0f;
         //float posY = 150.0f;
-        float posZ = Random.Range(2100.0f, 2200.0f);
+        float posZ = Random.Range(2300.0f, 2350.0f);
         Vector3 playerPos = new Vector3(posX, posY, posZ);
         //---------------------------------------------
 
@@ -59,13 +44,12 @@ public class PhotonManager : Photon.MonoBehaviour
             Player = PhotonNetwork.Instantiate(blueTeamPlayerPrefabName, playerPos, Quaternion.identity, 0);
             PhotonNetwork.player.SetTeam(PunTeams.Team.blue);
         }
-        Player.name = PhotonNetwork.playerName;
         //메인카메라 관련
         Camera.main.farClipPlane = 1000.0f;
         Camera.main.transform.SetParent(Player.transform);
-        GameObject camPivot = Player.transform.Find("CamPivot").gameObject;
-        Camera.main.transform.position = new Vector3(camPivot.transform.position.x, camPivot.transform.position.y, camPivot.transform.position.z);
-        Camera.main.transform.rotation = new Quaternion(camPivot.transform.rotation.x, camPivot.transform.rotation.y, camPivot.transform.rotation.z, camPivot.transform.rotation.w);
+        Transform camPivotTr = Player.transform.Find("CamPivot").gameObject.transform;
+        Camera.main.transform.position = new Vector3(camPivotTr.position.x, camPivotTr.position.y, camPivotTr.position.z);
+        Camera.main.transform.rotation = new Quaternion(camPivotTr.rotation.x, camPivotTr.rotation.y, camPivotTr.rotation.z, camPivotTr.rotation.w);
 
         //플레이어 스크립트 관련
         Player.GetComponent<CharacterMove>().enabled = true;
@@ -75,59 +59,39 @@ public class PhotonManager : Photon.MonoBehaviour
         Player.GetComponent<PlayerState>().enabled = true;
         //Player.GetComponent<NetworkCharacterMove>().enabled = true;
         Player.GetComponentInChildren<ItemDatabase>().enabled = true;
-        Player.GetComponentInChildren<Inventory>().enabled = true;
+        //Player.GetComponentInChildren<Inventory>().enabled = true;
         Player.GetComponentInChildren<SliderBarControl>().enabled = true;
         Player.GetComponentInChildren<CameraControl>().enabled = true;
+        Player.GetComponentInChildren<ScopeUiControl>().enabled = true;
         //Player.GetComponent<NetworkCharacterMove>().enabled = true;
         //Player.GetComponentInChildren<Rader>().enabled = true;
         //PlayerListManager.Add(PhotonNetwork.player);
 
-        photonView.RPC("NoticePlayerInfo", PhotonTargets.AllBuffered, PhotonNetwork.player.UserId);
+        photonView.RPC("SetConnectPlayerList", PhotonTargets.AllBuffered, null);
     }
-
     [PunRPC]
-    void NoticePlayerInfo(string playerName)
+    void SetConnectPlayerList()
     {
-        //playerListManager.Add(new PlayersManager(playerName));
-        Player.name = playerName;
+
+        //모든 Player 프리팹 저장
         playerObjs = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in playerObjs)
+        {
+            //Debug.Log(player.GetComponent<PhotonView>().viewID);
+            player.name = player.GetComponent<PhotonView>().viewID.ToString();
+        }
     }
 
     void OnGUI()
     {
         GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString());
-        //foreach (PlayersManager value in playerListManager)
-        //{
-        //    GUILayout.Label("playerName : " + value.playerName);
-        //}
-        if (players != null)
-        {
-            foreach (PhotonPlayer value in players)
-            {
-                GUILayout.Label("player UserId : " + value.UserId);
-            }
-        }
-        
-        GUILayout.Label("Red : " + PunTeams.PlayersPerTeam[PunTeams.Team.red].Count + " Blue : " + PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count + " 사람 수 : " + PhotonNetwork.countOfPlayersInRooms );
+        //GUILayout.Label("Red : " + PunTeams.PlayersPerTeam[PunTeams.Team.red].Count + " Blue : " + PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count + " 사람 수 : " + PhotonNetwork.countOfPlayersInRooms );
         if (PhotonNetwork.room == null) return; //Only display this GUI when inside a room
-
-        if (GUILayout.Button("Leave Room"))
-        {
-            // Mouse Lock
-            Cursor.lockState = CursorLockMode.None;
-            // Cursor visible
-            Cursor.visible = true;
-            Camera.main.transform.SetParent(menuPos.transform);
-            Camera.main.GetComponent<CameraControl>().enabled = false;
-            Camera.main.farClipPlane = Camera.main.nearClipPlane + 0.1f;
-            Camera.main.transform.position = Vector3.zero;
-            Camera.main.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
-            PhotonNetwork.LeaveRoom();
-        }
     }
 
     void OnDisconnectedFromPhoton()
     {
+        Debug.Log("누구 연결 끊어짐" + PhotonNetwork.player);
         Debug.LogWarning("OnDisconnectedFromPhoton");
     }
 }
