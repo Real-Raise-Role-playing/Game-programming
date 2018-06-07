@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class CharacterMove : Photon.MonoBehaviour
 {
-    //이동 변수
-    float x, z;
+    
     public Animator anim; //Anim
 
     public GameObject scopeOverlay; //scope 
@@ -19,6 +18,7 @@ public class CharacterMove : Photon.MonoBehaviour
     CharacterController characterController = null;
     PlayerState ps = null;
     OptionManager om = null;
+    FireScript fs = null;
     public Transform cameraTransform;
 
     public float moveSpeed = Constants.DefaultMoveSpeed;
@@ -30,15 +30,17 @@ public class CharacterMove : Photon.MonoBehaviour
     //
     public PhotonView pv = null;
     public Transform camPivot;
-    private SliderBarControl sliderBarControl = null;
 
     //bool 값을 통해 run aim을 구별
     [HideInInspector]
+    //이동 변수
+    public float x, z;
+
     public bool run = false;
-    private bool aim = false;
-    private bool sit = false;
-    private bool crawl = false;
-    private bool isWalk = false;
+    public bool aim = false;
+    public bool sit = false;
+    //public bool crawl = false;
+    public bool isWalk = false;
 
     void Awake()
     {
@@ -48,7 +50,7 @@ public class CharacterMove : Photon.MonoBehaviour
         rb = GetComponent<Rigidbody>();
         pv = GetComponent<PhotonView>();
         om = GetComponent<OptionManager>();
-
+        fs = GetComponent<FireScript>();
         if (pv.isMine)
         {
             //rader.playerPos = tr;
@@ -65,12 +67,12 @@ public class CharacterMove : Photon.MonoBehaviour
     void Start()
     {
         characterController = GetComponent<CharacterController>();
-        anim = GetComponent<Animator>(); //Anim
+        //anim = GetComponent<Animator>(); //Anim
         cameraTransform = Camera.main.GetComponent<Transform>();
         normalFOV = Camera.main.fieldOfView;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         //if (ps.playerStateNum == Constants.DEAD)
         //{
@@ -86,55 +88,25 @@ public class CharacterMove : Photon.MonoBehaviour
             {
                 x = Input.GetAxis("Horizontal");
                 z = Input.GetAxis("Vertical");
-
-                moveDirection = new Vector3(x, 0, z);
-                moveDirection = cameraTransform.TransformDirection(moveDirection);
-                runCheck();
-                animCheck(x, z);
-                moveDirection *= moveSpeed;
-                yVelocity += (gravity * Time.deltaTime);
-                moveDirection.y = yVelocity;
-                characterController.Move(moveDirection * Time.deltaTime);
                 //Camera.main.transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
                 //rb.transform.eulerAngles = new Vector3(0,Camera.main.transform.rotation.eulerAngles);
+                moveDirection = new Vector3(x, 0, z);
+                moveDirection = cameraTransform.TransformDirection(moveDirection);
+                
+                moveDirection *= moveSpeed;
             }
-
+            else
+            {
+                moveDirection = Vector3.zero;
+            }
+            runCheck();
+            animCheck(x, z);
+            yVelocity += (gravity * Time.deltaTime);
+            moveDirection.y = yVelocity;
+            characterController.Move(moveDirection * Time.deltaTime);
             //-----------------------------------------
-            //anim.SetFloat("inputH", x);
-            //anim.SetFloat("inputV", z);
-            //anim.SetBool("run", run);
-            //anim.SetBool("aim", aim);
-            //anim.SetBool("crawl", crawl);
-            //anim.SetBool("sit", sit);
-            //anim.SetBool("isWalk", isWalk);
-            AnimFloat("inputH", x);
-            AnimFloat("inputV", z);
-            AnimBool("run", run);
-            AnimBool("aim", aim);
-            AnimBool("crawl", crawl);
-            AnimBool("sit", sit);
-            AnimBool("isWalk", isWalk);
         }
     } // End of Update
-
-    void AnimFloat(string name, float value)
-    {
-        anim.SetFloat(name, value);
-        pv.RPC("otherAnimFloat", PhotonTargets.Others, name, value);
-    }
-    [PunRPC]
-    void otherAnimFloat(string name, float value)
-    {
-        //if (name == "inputH")
-        //{
-        //    x = value;
-        //}
-        //else
-        //{
-        //    z = value;
-        //}
-        anim.SetFloat(name, value);
-    }
 
     void AnimPlay(string animName, int layer, float time)
     {
@@ -168,25 +140,17 @@ public class CharacterMove : Photon.MonoBehaviour
     [PunRPC]
     void otherAnimBool(string animName, bool check)
     {
-        if (animName == "run")
-        {
-            run = check;
-        }
-        else if (animName == "aim")
+       if (animName == "aim")
         {
             aim = check;
         }
-        else if (animName == "crawl")
-        {
-            crawl = check;
-        }
+        //else if (animName == "crawl")
+        //{
+        //    crawl = check;
+        //}
         else if (animName == "sit")
         {
             sit = check;
-        }
-        else
-        {
-            isWalk = check;
         }
         anim.SetBool(animName, check);
     }
@@ -195,7 +159,6 @@ public class CharacterMove : Photon.MonoBehaviour
     {
         //-----------------------------------------
         //그냥 걷기
-
         if (x != 0 || z != 0)
         {
             isWalk = true;
@@ -209,19 +172,16 @@ public class CharacterMove : Photon.MonoBehaviour
         //점프
         if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
         {
-            AnimPlay("JUMP01", -1, 0f);
+            //AnimPlay("JUMP01", -1, 0f);
             //점프 애니메이션 수정
             yVelocity = jumpSpeed;
             jumpCount++;
-            //rb.isKinematic = false;
             ps.isGrounded = false;
         }
-        //if (characterController.isGrounded == true)
         if (ps.isGrounded == true && jumpCount > 0.0f)
         {
             yVelocity = Constants.Default_yVelocity;
             jumpCount = 0.0f;
-            //rb.isKinematic = true;
         }
         //-----------------------------------------
         //근접 공격
@@ -236,8 +196,10 @@ public class CharacterMove : Photon.MonoBehaviour
         {
             Camera.main.fieldOfView = normalFOV;
             AnimPlay("AIM", -1, 0f);
+            AnimBool("aim", true);
             scopeOverlay.SetActive(true);
             aim = true;
+            //aim = fs.shotState;
             //--------------------------
             //WeaponsCamera.SetActive(true);
             //-----------------------
@@ -248,6 +210,7 @@ public class CharacterMove : Photon.MonoBehaviour
             AnimBool("aim", false);
             scopeOverlay.SetActive(false);
             aim = false;
+            //aim = fs.shotState;
             //WeaponsCamera.SetActive(false);
         }
         //-----------------------------------------
@@ -270,13 +233,14 @@ public class CharacterMove : Photon.MonoBehaviour
             AnimPlay("sit_down", -1, 0f);
             moveSpeed = Constants.SitMoveSpeed;
             sit = true;
-
+            AnimBool("sit", sit);
         }
         else if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             AnimPlay("sit_up", -1, 0f);
             moveSpeed = Constants.DefaultMoveSpeed;
             sit = false;
+            AnimBool("sit", sit);
         }
     }
 
@@ -284,27 +248,26 @@ public class CharacterMove : Photon.MonoBehaviour
     {
         //달리기 관련 부분
         //-----------------------------------------
-        if (Input.GetKeyDown(KeyCode.LeftShift))// && om.HangerCheck)
+        if (Input.GetKey(KeyCode.LeftShift))
+        //if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            /*Debug.Log("HangerBarSlider.value : " + sliderBarControl.HangerBarSlider.value);
-            if (sliderBarControl.HangerBarSlider.value <= 0.5f)
-            {
-                Debug.Log("moveSpeed : " + moveSpeed);
-                moveSpeed = Constants.DefaultMoveSpeed;
-            }
-            */
             moveSpeed += Constants.AddMoveSpeed;
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
             if (moveSpeed >= Constants.MaxMoveSpeed)
             {
                 moveSpeed = Constants.MaxMoveSpeed;
             }
-            run = true;
+                run = true;
         }
-        else if (Input.GetKeyUp(KeyCode.LeftShift))// && !om.HangerCheck)
+        else
         {
-            moveSpeed = Constants.DefaultMoveSpeed;
-            run = false;
+            //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
+            if (moveSpeed <= Constants.DefaultMoveSpeed)
+            {
+                moveSpeed = Constants.DefaultMoveSpeed;
+                run = false;
+            }
+            moveSpeed -= Constants.AddMoveSpeed;
         }
     }
     void jumpCheck()

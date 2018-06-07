@@ -4,12 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 public class OptionManager : MonoBehaviour
 {
-    GameObject menuPos;
     //public static bool gameOptionOn = false;
     public GameObject InventoryObj = null;
     PlayerState ps = null;
     FireScript fireScript = null;
-    CharacterMove characterMoveScrpt = null;
     CameraControl cameraControlScript = null;
     PhotonView pv = null;
     Inventory Iv = null;
@@ -35,37 +33,13 @@ public class OptionManager : MonoBehaviour
     private void Awake()
     {
         LockCursor();
-        menuPos = GameObject.Find("MenuPos");
         InventoryObj = GameObject.Find("Inventory");
         pv = GetComponent<PhotonView>();
         ps = GetComponent<PlayerState>();
         Iv = GetComponentInChildren<Inventory>();
         fireScript = GetComponent<FireScript>();
-        characterMoveScrpt = GetComponent<CharacterMove>();
         cameraControlScript = Camera.main.GetComponent<CameraControl>();
         //cameraControlScript = GetComponentInChildren<CameraControl>();
-    }
-
-    private void OnGUI()
-    {
-        GUILayout.Label(" ");
-        GUILayout.Label(" ");
-        if (GUILayout.Button("Leave Room"))
-        {
-            // Mouse Lock
-            Cursor.lockState = CursorLockMode.None;
-            // Cursor visible
-            Cursor.visible = true;
-            Camera.main.transform.SetParent(menuPos.transform);
-            Camera.main.GetComponent<CameraControl>().enabled = false;
-            Camera.main.farClipPlane = Camera.main.nearClipPlane + 0.1f;
-            Camera.main.transform.position = Vector3.zero;
-            Camera.main.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
-            int veiwId = transform.GetComponent<PhotonView>().viewID;
-            Debug.Log("나간놈 ID : " + veiwId);
-            PhotonNetwork.Destroy(PhotonView.Find(veiwId).gameObject);
-            PhotonNetwork.LeaveRoom();
-        }
     }
 
     void Update()

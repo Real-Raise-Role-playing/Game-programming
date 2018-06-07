@@ -43,16 +43,17 @@ public class ItemDatabase : MonoBehaviour {
     {
         //Instantiate("items/axe", Vector3.zero, Quaternion.identity) as GameObject
         //시작 아이템 정보
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/axe"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/armor"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/apple"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
+        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/bag"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
+        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/canteen"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
+        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/firstaid"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
 
-        Add("axe", 1, 500, "Good Axe", 1, ItemType.Equipment, startItemObjs[0]);
-        Add("armor", 1, 500, "Best Armor", 2, ItemType.Equipment, startItemObjs[1]);
-        Add("apple", 1, 50, "Delicious Apple", 3, ItemType.Consumption, startItemObjs[2]);
+        Add("bag", 1, 500, "Good Bag", 1, ItemType.Equipment, startItemObjs[0]);
+        Add("canteen", 1, 500, "Best canteen", 2, ItemType.Equipment, startItemObjs[1]);
+        Add("firstaid", 1, 50, "Delicious firstaid", 3, ItemType.Consumption, startItemObjs[2]);
         foreach (GameObject item in startItemObjs)
         {
-            item.SetActive(false);
+            //item.SetActive(false);
+            Destroy(item);
         }
     }
 
@@ -66,5 +67,10 @@ public class ItemDatabase : MonoBehaviour {
     public void GetItemInfo(int _itemCount) {
         selectItem = items.Find(x => x.itemCount == _itemCount);
         //Debug.Log("GetItemInfo : " + selectItem.itemName + " " + selectItem.itemCount);
+    }
+
+    private void OnDestroy()
+    {
+        Resources.UnloadUnusedAssets();
     }
 }

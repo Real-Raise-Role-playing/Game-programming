@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class CheckCollider : Photon.MonoBehaviour
 {
+    GameObject menuPos;
+
     public GameObject bagState = null;
-    public GameObject gunState = null;
     public GameObject helmetsState = null;
-    public GameObject armorState = null;
-    public GameObject etcState = null;
+    public GameObject canteen = null;
+    public GameObject blanket = null;
+    public GameObject shovel = null;
+    public List<GameObject> itemList = null;
 
     private ItemDatabase idb = null;
     private Inventory iv = null;
@@ -18,11 +21,15 @@ public class CheckCollider : Photon.MonoBehaviour
     private GameObject itemObj = null;
     private string itemName = null;
     private PhotonView pv = null;
+    private PhotonManager pm = null;
     void Awake()
     {
         idb = GetComponentInChildren<ItemDatabase>();
         iv = GetComponentInChildren<Inventory>();
         pv = GetComponent<PhotonView>();
+        pm = GetComponent<PhotonManager>();
+        menuPos = GameObject.Find("MenuPos");
+
     }
 
     void Update()
@@ -30,11 +37,8 @@ public class CheckCollider : Photon.MonoBehaviour
         if (!pv.isMine) { return; }
         if (Input.GetKeyDown(KeyCode.F) && isGetItemflag)
         {
-            //아이템 줍기 시 기존 아이템 갯수에서 ++해준다. 
             idb.itemCount++;
-            //아이템 리스트에서 꺼내어 저장
             addItemList(itemName);
-            //인벤토리 관련 인스턴스를 사용하려면 먼저 false상태에서 active상태로 해야함
             iv.AddItem(idb.itemCount);
             idb.GetItemInfo(idb.itemCount);
             if (idb.selectItem == null)
@@ -45,62 +49,63 @@ public class CheckCollider : Photon.MonoBehaviour
             //먹은 아이템이 무기면
             else if (idb.selectItem.itemType == ItemType.Equipment)
             {
-                //transform.Find("Cylinder002").transform.Find(itemName).gameObject.SetActive(true);
-                //pv.RPC("EquipObject", PhotonTargets.All, "Cylinder002", itemName, true);
-                pv.RPC("EquipObject", PhotonTargets.All, itemName, true);
-                //Debug.Log("item 찾은 이름 : "+ transform.Find("Cylinder002").transform.Find(itemName).gameObject.name);
+                pv.RPC("EquipObject", PhotonTargets.AllBufferedViaServer, itemName, true);
                 Debug.Log("무기 먹음");
-                pv.RPC("acquireObject", PhotonTargets.All, false);
+                pv.RPC("acquireObject", PhotonTargets.AllBufferedViaServer, false);
             }
             //먹은 아이템이 장식품이면
             else if (idb.selectItem.itemType == ItemType.Misc)
             {
                 Debug.Log("장식품 먹음");
-                //itemObj.SetActive(false);
-                pv.RPC("acquireObject",PhotonTargets.All, false);
+                pv.RPC("acquireObject", PhotonTargets.AllBufferedViaServer, false);
             }
             //먹은 아이템이 소모품이면
             else
             {
                 Debug.Log("소모품 먹음");
-                //itemObj.SetActive(false);
-                pv.RPC("acquireObject",PhotonTargets.All,false);
+                pv.RPC("acquireObject", PhotonTargets.AllBufferedViaServer, false);
             }
-            //idb.itemObjs.Add(itemObj);
             isGetItemflag = false;
         }
     }
-
-    //장비를 모두 입혀놓고 true, false 하는 것으로
-    //[PunRPC]
-    //void EquipObject(string parentName, string childName, bool state)
-    //{
-    //    Debug.Log("GetSiblingIndex : " + transform.Find(parentName).gameObject.name);
-    //    transform.Find(parentName).transform.Find(childName).gameObject.SetActive(state);
-    //}    
+    
     [PunRPC]
-    void EquipObject( string itemName, bool state)
+    void EquipObject(string itemName, bool state)
     {
-        if (itemName == "helmets")
+        if (itemName == "helmet")
         {
             helmetsState.SetActive(state);
+            itemList.Add(helmetsState);
         }
         else if (itemName == "bag")
         {
             bagState.SetActive(state);
+            itemList.Add(bagState);
         }
-        else if (itemName == "rings")
+        else if (itemName == "canteen")
         {
-            gunState.SetActive(state);
+            canteen.SetActive(state);
+            itemList.Add(canteen);
         }
-        else if (itemName == "b_t_01")
+        else if (itemName == "blanket")
         {
-            armorState.SetActive(state);
+            blanket.SetActive(state);
+            itemList.Add(blanket);
+        }
+        else if (itemName == "shovel")
+        {
+            shovel.SetActive(state);
+            itemList.Add(shovel);
+        }
+        else
+        {
+            Debug.Log("없음");
         }
     }
 
     [PunRPC]
-    void acquireObject(bool State) {
+    void acquireObject(bool State)
+    {
         if (itemObj != null)
         {
             itemObj.SetActive(State);
@@ -109,53 +114,104 @@ public class CheckCollider : Photon.MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        int layerIndex = other.gameObject.layer;
-        //if (other.CompareTag("Pig")) //태그 비교할땐 컴페어를 주로 사용할 것
-        if (LayerMask.LayerToName(layerIndex) == "Item")
+        if (!pv.isMine)
         {
-            isGetItemflag = true;
-            itemName = other.gameObject.name;
-            itemObj = other.gameObject;
+            isGetItemflag = false;
+            itemName = string.Empty;
+            itemObj = null;
+            return;
+        }
+        else
+        {
+
+            int layerIndex = other.gameObject.layer;
+            //if (other.CompareTag("Pig")) //태그 비교할땐 컴페어를 주로 사용할 것
+            if (LayerMask.LayerToName(layerIndex) == "Item")
+            {
+                isGetItemflag = true;
+                itemName = other.gameObject.tag;
+                itemObj = other.gameObject;
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        int layerIndex = other.gameObject.layer;
-        if (LayerMask.LayerToName(layerIndex) == "Item")
+        if (!pv.isMine)
         {
-            isGetItemflag = false;
-            itemName = string.Empty;
-            itemObj = null;
+            return;
+        }
+        else
+        {
+            int layerIndex = other.gameObject.layer;
+            if (LayerMask.LayerToName(layerIndex) == "Item")
+            {
+                isGetItemflag = false;
+                itemName = string.Empty;
+                itemObj = null;
+            }
         }
     }
 
     void addItemList(string itemName)
     {
-        if (itemName == "helmets")
+        if (itemName == "helmet")
         {
 
-            idb.Add("helmets", 1, 50, "Good helmets", idb.itemCount, ItemType.Consumption, itemObj);
+            idb.Add("helmet", 1, 50, "Good helmets", idb.itemCount, ItemType.Equipment, itemObj);
         }
-        else if (itemName == "b_t_01")
+        else if (itemName == "firstaid")
         {
-          idb.Add("b_t_01", 1, 10, "b_t_01", idb.itemCount, ItemType.Misc, itemObj);
+            idb.Add("firstaid", 1, 10, "Good firstaid", idb.itemCount, ItemType.Consumption, itemObj);
         }
         else if (itemName == "bag")
         {
             idb.Add("bag", 1, 2000, "Beautiful Bag", idb.itemCount, ItemType.Equipment, itemObj);
         }
-        else if (itemName == "rings")
+        else if (itemName == "canteen")
         {
-            idb.Add("rings", 1, 800, "Beautiful rings", idb.itemCount, ItemType.Equipment, itemObj);
+            idb.Add("canteen", 1, 800, "Beautiful canteen", idb.itemCount, ItemType.Equipment, itemObj);
         }
-        else if (itemName == "gem")
+        else if (itemName == "blanket")
         {
-            idb.Add("gem", 1, 800, "Beautiful gem", idb.itemCount, ItemType.Misc, itemObj);
+            idb.Add("blanket", 1, 800, "Beautiful blanket", idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "shovel")
+        {
+            idb.Add("shovel", 1, 800, "Beautiful shovel", idb.itemCount, ItemType.Equipment, itemObj);
         }
         else
         {
             Debug.Log("응 오류.");
+        }
+    }
+
+    private void OnGUI()
+    {
+        GUILayout.Label(" ");
+        GUILayout.Label(" ");
+        if (GUILayout.Button("Leave Room"))
+        {
+            // Mouse Lock
+            Cursor.lockState = CursorLockMode.None;
+            // Cursor visible
+            Cursor.visible = true;
+            Camera.main.transform.SetParent(menuPos.transform);
+            Camera.main.GetComponent<CameraControl>().enabled = false;
+            Camera.main.farClipPlane = Camera.main.nearClipPlane + 0.1f;
+            Camera.main.transform.position = Vector3.zero;
+            Camera.main.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+            int veiwId = transform.GetComponent<PhotonView>().viewID;
+            Debug.Log("나간놈 ID : " + veiwId);
+            //foreach (GameObject player in pm.playerList)
+            //{
+            //    if (player.name == veiwId.ToString())
+            //    {
+            //        pm.playerList.Remove(player);
+            //    }
+            //}
+            PhotonNetwork.Destroy(PhotonView.Find(veiwId).gameObject);
+            PhotonNetwork.LeaveRoom();
         }
     }
 }

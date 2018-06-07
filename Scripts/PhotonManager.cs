@@ -6,10 +6,9 @@ public class PhotonManager : Photon.MonoBehaviour
 {
     const string redTeamPlayerPrefabName = "PlayerRed";
     const string blueTeamPlayerPrefabName = "PlayerBlue";
-    //public List<string> PlayerListManager = new List<string>();
     public PhotonPlayer[] players = null;
     public GameObject[] playerObjs = null;
-    public List<PlayersManager> playerListManager = new List<PlayersManager>();
+    public List<GameObject> playerList = null;
     
     void OnJoinedRoom()
     {
@@ -52,6 +51,7 @@ public class PhotonManager : Photon.MonoBehaviour
         Camera.main.transform.rotation = new Quaternion(camPivotTr.rotation.x, camPivotTr.rotation.y, camPivotTr.rotation.z, camPivotTr.rotation.w);
 
         //플레이어 스크립트 관련
+        //Player.transform.Find("Camera").gameObject.SetActive(true);
         Player.GetComponent<CharacterMove>().enabled = true;
         Player.GetComponent<OptionManager>().enabled = true;
         Player.GetComponent<FireScript>().enabled = true;
@@ -60,24 +60,29 @@ public class PhotonManager : Photon.MonoBehaviour
         //Player.GetComponent<NetworkCharacterMove>().enabled = true;
         Player.GetComponentInChildren<ItemDatabase>().enabled = true;
         //Player.GetComponentInChildren<Inventory>().enabled = true;
-        Player.GetComponentInChildren<SliderBarControl>().enabled = true;
+        Player.GetComponentInChildren<StateUIControl>().enabled = true;
         Player.GetComponentInChildren<CameraControl>().enabled = true;
         Player.GetComponentInChildren<ScopeUiControl>().enabled = true;
         //Player.GetComponent<NetworkCharacterMove>().enabled = true;
         //Player.GetComponentInChildren<Rader>().enabled = true;
-        //PlayerListManager.Add(PhotonNetwork.player);
 
-        photonView.RPC("SetConnectPlayerList", PhotonTargets.AllBuffered, null);
+        photonView.RPC("SetConnectPlayerList", PhotonTargets.AllBufferedViaServer, null);
     }
     [PunRPC]
     void SetConnectPlayerList()
     {
 
         //모든 Player 프리팹 저장
-        playerObjs = GameObject.FindGameObjectsWithTag("Player");
-        foreach (GameObject player in playerObjs)
-        {
-            //Debug.Log(player.GetComponent<PhotonView>().viewID);
+        //playerObjs = GameObject.FindGameObjectsWithTag("Player");
+        //foreach (GameObject player in playerObjs)
+        //{
+        //    //Debug.Log(player.GetComponent<PhotonView>().viewID);
+        //    player.name = player.GetComponent<PhotonView>().viewID.ToString();
+        //}
+        playerList.Clear();
+        playerList.AddRange(GameObject.FindGameObjectsWithTag("Player"));
+        foreach (GameObject player in playerList) {
+            Debug.Log(player.GetComponent<PhotonView>().viewID);
             player.name = player.GetComponent<PhotonView>().viewID.ToString();
         }
     }
@@ -91,7 +96,7 @@ public class PhotonManager : Photon.MonoBehaviour
 
     void OnDisconnectedFromPhoton()
     {
-        Debug.Log("누구 연결 끊어짐" + PhotonNetwork.player);
+        Debug.Log("누구 연결 끊어짐 " + PhotonNetwork.player.UserId);
         Debug.LogWarning("OnDisconnectedFromPhoton");
     }
 }
