@@ -170,19 +170,19 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         //-----------------------------------------
         //점프
-        if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
-        {
-            //AnimPlay("JUMP01", -1, 0f);
-            //점프 애니메이션 수정
-            yVelocity = jumpSpeed;
-            jumpCount++;
-            ps.isGrounded = false;
-        }
-        if (ps.isGrounded == true && jumpCount > 0.0f)
-        {
-            yVelocity = Constants.Default_yVelocity;
-            jumpCount = 0.0f;
-        }
+        //if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
+        //{
+        //    //AnimPlay("JUMP01", -1, 0f);
+        //    //점프 애니메이션 수정
+        //    yVelocity = jumpSpeed;
+        //    jumpCount++;
+        //    ps.isGrounded = false;
+        //}
+        //if (ps.isGrounded == true && jumpCount > 0.0f)
+        //{
+        //    yVelocity = Constants.Default_yVelocity;
+        //    jumpCount = 0.0f;
+        //}
         //-----------------------------------------
         //근접 공격
         if (Input.GetKeyDown(KeyCode.V))
@@ -272,16 +272,29 @@ public class CharacterMove : Photon.MonoBehaviour
     }
     void jumpCheck()
     {
-
-        if (characterController.isGrounded == true)
+        if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
+        {
+            //AnimPlay("JUMP01", -1, 0f);
+            //점프 애니메이션 수정
+            yVelocity = jumpSpeed;
+            jumpCount++;
+            ps.isGrounded = false;
+        }
+        if (ps.isGrounded == true && jumpCount > 0.0f)
         {
             yVelocity = Constants.Default_yVelocity;
             jumpCount = 0.0f;
         }
-        if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
-        {
-            yVelocity = jumpSpeed;
-            jumpCount++;
-        }
+
+        //if (characterController.isGrounded == true)
+        //{
+        //    yVelocity = Constants.Default_yVelocity;
+        //    jumpCount = 0.0f;
+        //}
+        //if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
+        //{
+        //    yVelocity = jumpSpeed;
+        //    jumpCount++;
+        //}
     }
 }
