@@ -68,6 +68,11 @@ public class Inventory : MonoBehaviour
             _slot.transform.GetChild(0).gameObject.SetActive(true);
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = _slot.item.itemImage;
         }
+        else if (_slot.item.itemValue == -1)
+        {
+            _slot.transform.GetChild(0).gameObject.SetActive(true);
+            _slot.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("ItemImages/f"); ;
+        }
         else
         {
             _slot.transform.GetChild(0).gameObject.SetActive(false);

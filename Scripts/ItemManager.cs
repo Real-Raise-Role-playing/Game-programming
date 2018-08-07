@@ -6,7 +6,8 @@ public enum ItemType
 {
     Equipment,  //장비
     Consumption,//소모
-    Misc        //기타
+    Misc,       //기타
+    NONE        //빈칸
 }
 
 [System.Serializable]

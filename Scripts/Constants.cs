@@ -22,10 +22,12 @@ public static class Constants
     public const float upPower = 5.0f;
     public const float m16FireSpeed = 0.2f;
     public const float kar98FireSpeed = 1.0f;
-
+    public const int   m16MaxBulletCount = 30;
+    public const int   m16InitBulletCount = 30;
     //Inventory 관련 상수
+    public const int maxInventoryCount = 25;
     public const int startItemCount = 3;
-
+    public const int equipmentMaxCount = 6; //현재 모델링 된 장비 몇개인지
     //PlayerState 상태 관련 상수
     public const int initHp = 100;
     public const int NONE = 0;

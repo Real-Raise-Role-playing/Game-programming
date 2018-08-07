@@ -8,17 +8,17 @@ public class CharacterMove : Photon.MonoBehaviour
     public Animator anim; //Anim
 
     public GameObject scopeOverlay; //scope 
-    //public GameObject WeaponsCamera;
     public float scopedFOV = 79f;
     private float normalFOV;
 
     //Transform tr = null;
     Rigidbody rb = null;
-    //Rader rader = null;
     CharacterController characterController = null;
     PlayerState ps = null;
     OptionManager om = null;
     FireScript fs = null;
+    StateBarManager sbm = null;
+    CheckCollider cc = null;
     public Transform cameraTransform;
 
     public float moveSpeed = Constants.DefaultMoveSpeed;
@@ -39,18 +39,26 @@ public class CharacterMove : Photon.MonoBehaviour
     public bool run = false;
     public bool aim = false;
     public bool sit = false;
-    //public bool crawl = false;
     public bool isWalk = false;
+    public bool jump = false;
+    public bool tilt_L = false;
+    public bool tilt_R = false;
+    public bool attack = false;
+    public bool pickUp = false;
 
+    //public bool crawl = false;
     void Awake()
     {
         //this.enabled = GetComponent<PhotonView>().isMine;
         ps = GetComponent<PlayerState>();
+        //suc = GetComponentInChildren<StateUIControl>();
+        sbm = GetComponentInChildren<StateBarManager>();
         //tr = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         pv = GetComponent<PhotonView>();
         om = GetComponent<OptionManager>();
         fs = GetComponent<FireScript>();
+        cc = GetComponent<CheckCollider>();
         if (pv.isMine)
         {
             //rader.playerPos = tr;
@@ -67,7 +75,6 @@ public class CharacterMove : Photon.MonoBehaviour
     void Start()
     {
         characterController = GetComponent<CharacterController>();
-        //anim = GetComponent<Animator>(); //Anim
         cameraTransform = Camera.main.GetComponent<Transform>();
         normalFOV = Camera.main.fieldOfView;
     }
@@ -84,6 +91,7 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         else
         {
+            //Debug.Log(characterController.isGrounded);
             if (!om.InventoryOn)
             {
                 x = Input.GetAxis("Horizontal");
@@ -99,16 +107,16 @@ public class CharacterMove : Photon.MonoBehaviour
             {
                 moveDirection = Vector3.zero;
             }
-            runCheck();
-            animCheck(x, z);
             yVelocity += (gravity * Time.deltaTime);
             moveDirection.y = yVelocity;
             characterController.Move(moveDirection * Time.deltaTime);
+            runCheck();
+            animCheck(x, z);
             //-----------------------------------------
         }
     } // End of Update
 
-    void AnimPlay(string animName, int layer, float time)
+    public void AnimPlay(string animName, int layer, float time)
     {
         if (om.InventoryOn)
         {
@@ -140,18 +148,26 @@ public class CharacterMove : Photon.MonoBehaviour
     [PunRPC]
     void otherAnimBool(string animName, bool check)
     {
-       if (animName == "aim")
-        {
-            aim = check;
-        }
-        //else if (animName == "crawl")
-        //{
-        //    crawl = check;
-        //}
-        else if (animName == "sit")
-        {
-            sit = check;
-        }
+       //if (animName == "aim")
+       // {
+       //     aim = check;
+       // }
+       // //else if (animName == "crawl")
+       // //{
+       // //    crawl = check;
+       // //}
+       // else if (animName == "sit")
+       // {
+       //     sit = check;
+       // }
+       // else if (animName == "tilt_L")
+       // {
+       //     tilt = check;
+       // }
+       // else if (animName == "tilt_R")
+       // {
+       //     tilt = check;
+       // }
         anim.SetBool(animName, check);
     }
 
@@ -170,19 +186,28 @@ public class CharacterMove : Photon.MonoBehaviour
         }
         //-----------------------------------------
         //점프
-        //if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
-        //{
-        //    //AnimPlay("JUMP01", -1, 0f);
-        //    //점프 애니메이션 수정
-        //    yVelocity = jumpSpeed;
-        //    jumpCount++;
-        //    ps.isGrounded = false;
-        //}
-        //if (ps.isGrounded == true && jumpCount > 0.0f)
-        //{
-        //    yVelocity = Constants.Default_yVelocity;
-        //    jumpCount = 0.0f;
-        //}
+        if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
+        {
+            //if (!jump)
+            //{
+            //    AnimPlay("JUMP01", -1, 0f);
+            //}
+            //점프 애니메이션 수정
+            Debug.Log("점프");
+            yVelocity = jumpSpeed;
+            jumpCount++;
+            ps.isGrounded = false;
+            jump = true;
+            //AnimPlay("JUMP01", -1, 0f);
+            AnimBool("jump", jump);
+        }
+        if (ps.isGrounded == true && jumpCount > 0.0f)
+        {
+            yVelocity = Constants.Default_yVelocity;
+            jumpCount = 0.0f;
+            jump = false;
+            AnimBool("jump", jump);
+        }
         //-----------------------------------------
         //근접 공격
         if (Input.GetKeyDown(KeyCode.V))
@@ -217,12 +242,19 @@ public class CharacterMove : Photon.MonoBehaviour
         //논 에임 공격
         if (aim && Input.GetMouseButton(0))
         {
-            AnimPlay("AIM_SHOT", -1, 0f);
+            if (fs.currentBulletCount > 0)
+            {
+                AnimPlay("AIM_SHOT", -1, 0f);
+                attack = true;
+            }
         }
-        else if (!aim && Input.GetMouseButtonDown(0))
+        if (!aim && Input.GetMouseButton(0))
         /*aim == false && Input.GetMouseButtonDown(0)*/
         {
-            AnimPlay("NONE_AIM", -1, 0f);
+            if (fs.currentBulletCount > 0)
+            {
+                AnimPlay("NONE_AIM", -1, 0f);
+            }
         }
         //-----------------------------------------
 
@@ -242,6 +274,41 @@ public class CharacterMove : Photon.MonoBehaviour
             sit = false;
             AnimBool("sit", sit);
         }
+        //재장전
+        if (!aim && fs.reloadAnimCheck)
+        {
+            AnimPlay("reload", -1, 0f);
+        }
+        if (!aim && cc.pickUpAnimCheck)
+        {
+            AnimPlay("pick_up", -1, 0f);
+        }
+        //왼쪽 내밀기
+        if (!aim && !jump  && Input.GetKey(KeyCode.Q))
+        {
+            //anim.Play("tilt_L", -1, 0f);
+            tilt_L = true;
+            AnimBool("tilt_L", tilt_L);
+        }
+        else if (tilt_L && Input.GetKeyUp(KeyCode.Q))
+        {
+            tilt_L = false;
+            AnimBool("tilt_L", tilt_L);
+        }
+        if (!aim && !jump && Input.GetKey(KeyCode.E))
+        {
+            //anim.Play("tilt_R", -1, 0f);
+            tilt_R = true;
+            AnimBool("tilt_R", tilt_R);
+        }
+        else
+        {
+            tilt_R = false;
+            AnimBool("tilt_R", tilt_R);
+        }
+
+        //-----------------------------------------
+
     }
 
     void runCheck()
@@ -251,50 +318,38 @@ public class CharacterMove : Photon.MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift))
         //if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            moveSpeed += Constants.AddMoveSpeed;
-            //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
-            if (moveSpeed >= Constants.MaxMoveSpeed)
+            //suc.HangerBarSlider.value -= 0.5f;
+
+            sbm.HangerBarSlider.value -= 0.005f;
+            if (sbm.HangerBarSlider.value <= 0.2f)
+            //if (suc.HangerBarSlider.value <= 2.0f)
             {
-                moveSpeed = Constants.MaxMoveSpeed;
+
+                moveSpeed = Constants.DefaultMoveSpeed;
+                run = false;
             }
+            else
+            {
+                moveSpeed += Constants.AddMoveSpeed;
+                //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
+                if (moveSpeed >= Constants.MaxMoveSpeed)
+                {
+                    moveSpeed = Constants.MaxMoveSpeed;
+                }
                 run = true;
+            }
         }
         else
         {
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
+            moveSpeed -= Constants.AddMoveSpeed;
+            //suc.HangerBarSlider.value += 0.3f;
+            sbm.HangerBarSlider.value += 0.003f;
             if (moveSpeed <= Constants.DefaultMoveSpeed)
             {
                 moveSpeed = Constants.DefaultMoveSpeed;
-                run = false;
             }
-            moveSpeed -= Constants.AddMoveSpeed;
+            run = false;
         }
-    }
-    void jumpCheck()
-    {
-        if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
-        {
-            //AnimPlay("JUMP01", -1, 0f);
-            //점프 애니메이션 수정
-            yVelocity = jumpSpeed;
-            jumpCount++;
-            ps.isGrounded = false;
-        }
-        if (ps.isGrounded == true && jumpCount > 0.0f)
-        {
-            yVelocity = Constants.Default_yVelocity;
-            jumpCount = 0.0f;
-        }
-
-        //if (characterController.isGrounded == true)
-        //{
-        //    yVelocity = Constants.Default_yVelocity;
-        //    jumpCount = 0.0f;
-        //}
-        //if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
-        //{
-        //    yVelocity = jumpSpeed;
-        //    jumpCount++;
-        //}
     }
 }

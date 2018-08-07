@@ -60,7 +60,7 @@ public class PhotonManager : Photon.MonoBehaviour
         //Player.GetComponent<NetworkCharacterMove>().enabled = true;
         Player.GetComponentInChildren<ItemDatabase>().enabled = true;
         //Player.GetComponentInChildren<Inventory>().enabled = true;
-        Player.GetComponentInChildren<StateUIControl>().enabled = true;
+        //Player.GetComponentInChildren<StateUIControl>().enabled = true;
         Player.GetComponentInChildren<CameraControl>().enabled = true;
         Player.GetComponentInChildren<ScopeUiControl>().enabled = true;
         //Player.GetComponent<NetworkCharacterMove>().enabled = true;
@@ -96,7 +96,7 @@ public class PhotonManager : Photon.MonoBehaviour
 
     void OnDisconnectedFromPhoton()
     {
-        Debug.Log("누구 연결 끊어짐 " + PhotonNetwork.player.UserId);
+        Debug.Log("연결 끊어짐 ID : " + PhotonNetwork.player.UserId);
         Debug.LogWarning("OnDisconnectedFromPhoton");
     }
 }

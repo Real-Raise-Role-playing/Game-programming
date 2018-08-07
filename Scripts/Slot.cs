@@ -9,7 +9,6 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
     public int number;
     public ItemManager item;
     public ItemDatabase itemDataBase;
-
     void Start()
     {
         iv = GetComponentInParent<Inventory>();
@@ -51,14 +50,23 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
             //이미지 교환
             iv.ItemImageChange(this);
             iv.ItemImageChange(iv.enteredSlot);
+            if (itemDataBase.itemObjs != null)
+            {
+                itemDataBase.Swap(itemDataBase.itemObjs, (item.itemCount - 1), (iv.enteredSlot.item.itemCount - 1));
+            }
         }
-        if (itemDataBase.itemObjs != null)
+        else
         {
-            itemDataBase.Swap(itemDataBase.itemObjs, (item.itemCount - 1), (iv.enteredSlot.item.itemCount - 1));
-            //foreach (GameObject item in itemDataBase.itemObjs)
-            //{
-            //    Debug.Log(item.name);
-            //}
+            if (item.itemType != ItemType.NONE)
+            {
+                int tempitemCount = item.itemCount;
+                Debug.Log(item.itemName.ToString() + "tempitemCount : " + tempitemCount);
+                itemDataBase.Remove(item.itemCount);
+            }
+            else
+            {
+                Debug.Log("빈거 던지기 ㄴ");
+            }
         }
     }
 }

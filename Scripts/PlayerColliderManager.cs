@@ -60,12 +60,11 @@ public class PlayerColliderManager : MonoBehaviour {
             }
             ps.playerStateUpdate();
         }
-        else if (collisionLayer == LayerMask.NameToLayer("Ground") )//&& ps.isGrounded != true)
+        else if (collisionLayer == LayerMask.NameToLayer("Ground") && !ps.isGrounded)
         {
-                Debug.Log("Ground 콜라이더 진입");
             if (this.gameObject.name == "LFootCollider" || this.gameObject.name == "RFootCollider")
             {
-                Debug.Log("발 닿음");
+                //Debug.Log("발 닿음");
                 ps.isGrounded = true;
             }
         }

@@ -57,7 +57,7 @@ public class CameraControl : MonoBehaviour
             rotationX += mouseMoveValueY * sensitivity * Time.deltaTime;
             rotationX %= 360;
             rotationY %= 360;
-            rotationX = Mathf.Clamp(rotationX, -40.0f, 80.0f);
+            rotationX = Mathf.Clamp(rotationX, -20.0f, 80.0f);
 
             PlayerTr.eulerAngles = new Vector3(PlayerTr.eulerAngles.x, rotationY, PlayerTr.eulerAngles.z);
             //PlayerTr.eulerAngles = new Vector3(PlayerTr.rotation.eulerAngles.x, rotationY, PlayerTr.rotation.eulerAngles.z);

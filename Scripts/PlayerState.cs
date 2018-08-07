@@ -3,18 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 public class PlayerState : Photon.MonoBehaviour
 {
-    //public enum PLAYERSTATE
-    //{
-    //    NONE = 0,
-    //    GROGGY = 1,
-    //    DEAD
-    //}
-    //Player 스크립트
-    //NONE = 0 , GROGGY = 1 , DEAD = 3
     public int playerStateNum = 0;
     private FireScript fireScript = null;
     private PhotonView pv = null;
     public GameObject hpBarObj = null;
+    public UISlider healthUI;
 
     //플레이어 상태
     //public bool isDead = false;
@@ -28,20 +21,22 @@ public class PlayerState : Photon.MonoBehaviour
     public int currHp = 0;
 
     //플레이어 비활성화
-    public Collider[] colliders = null;
-    public MeshRenderer[] renderers;
-    public SkinnedMeshRenderer[] skinRenderers;
-    public Canvas[] canvas = null;
-    public CheckCollider checkColliderCs = null;
-    public CameraControl CamCon = null;
-    public CharacterMove CharMove = null;
-    public OptionManager optionManager = null;
+    public  Collider[]              colliders = null;
+    public  MeshRenderer[]          renderers = null;
+    public  SkinnedMeshRenderer[]   skinRenderers = null;
+    public  Canvas[]                canvas = null;
+    public  CheckCollider           checkColliderCs = null;
+    public  CameraControl           camCon = null;
+    public  CharacterMove           charMove = null;
+    public  OptionManager           optionManager = null;
+    private StateBarManager         sbm = null;
+
     void Awake()
     {
         //player들이 동적할당이 되기전에 가져오는 것인가..?
-        CamCon = Camera.main.GetComponent<CameraControl>();
+        camCon = Camera.main.GetComponent<CameraControl>();
         optionManager = GetComponent<OptionManager>();
-        CharMove = GetComponent<CharacterMove>();
+        charMove = GetComponent<CharacterMove>();
         fireScript = GetComponent<FireScript>();
         currHp = Constants.initHp;
         pv = GetComponent<PhotonView>();
@@ -50,11 +45,12 @@ public class PlayerState : Photon.MonoBehaviour
         colliders = GetComponentsInChildren<Collider>();
         canvas = GetComponentsInChildren<Canvas>();
         checkColliderCs = GetComponent<CheckCollider>();
+        sbm = GetComponentInChildren<StateBarManager>();
     }
     public void playerStateUpdate()
     {
-
         //void SetPlayerVisible(bool isVisible, int myHealth, int playerState)
+        sbm.HpBarSlider.value = currHp * 0.01f;
         if (currHp <= 0)
         {
             pv.RPC("SetPlayerVisible", PhotonTargets.AllBufferedViaServer, false, currHp, Constants.DEAD);
@@ -85,19 +81,15 @@ public class PlayerState : Photon.MonoBehaviour
         }
         else if (playerState == Constants.DEAD)
         {
-            // Mouse Lock
-            Cursor.lockState = CursorLockMode.None;
-            // Cursor visible
-            Cursor.visible = true;
-            //optionManager.enabled = false;
             if (pv.isMine)
             {
-                CamCon.enabled = false;
+                camCon.enabled = false;
             }
-            CharMove.enabled = false;
+            charMove.enabled = false;
             fireScript.enabled = false;
             hpBarObj.SetActive(false);
             optionManager.enabled = false;
+            
             foreach (GameObject _obj in checkColliderCs.itemList)
             {
                 _obj.SetActive(isVisible);
@@ -118,7 +110,10 @@ public class PlayerState : Photon.MonoBehaviour
             {
                 _colliders.enabled = isVisible;
             }
-            
+            // Mouse Lock
+            Cursor.lockState = CursorLockMode.None;
+            // Cursor visible
+            Cursor.visible = true;
         }
     }
 

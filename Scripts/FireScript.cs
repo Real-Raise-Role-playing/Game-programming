@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class FireScript : Photon.MonoBehaviour
 {
+    CharacterMove cm = null;
+
     public Transform cameraTransform = null;
     public float forwardPower = Constants.forwardPower;
     public float upPower = Constants.upPower;
-
     public Transform fireTransform;
-
     GameObject fireObject = null;
     GameObject emptyFireObject = null;
     Rigidbody fireObjectRb = null;
@@ -31,14 +31,14 @@ public class FireScript : Photon.MonoBehaviour
     public int currentBulletCount;
     //가방에 가지고 있는 총알 수
     public int havingBulletCount;
-
+    public bool reloadAnimCheck;
     public float ShootRate;//DPS
     public float ReloadTime;//재장전 시간
 
 
-
     void Awake()
     {
+        cm = GetComponent<CharacterMove>();
         fireObject = (GameObject)Resources.Load("Bullet1");
         fireObjectRb = fireObject.GetComponent<Rigidbody>();
         emptyFireObject = (GameObject)Resources.Load("Bullet2");
@@ -52,14 +52,14 @@ public class FireScript : Photon.MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
         cameraTransform = Camera.main.GetComponent<Transform>();
         //cameraTransform = GameObject.Find("MainCamera").GetComponent<Transform>();
         //this.enabled = GetComponent<PhotonView>().isMine;
         cameraDefaultZoom = Camera.main.fieldOfView;
 
         currentBulletCount = 0;
-        havingBulletCount = 90;
+        havingBulletCount = Constants.m16InitBulletCount;
+        reloadAnimCheck = false;
     }
     [PunRPC]
     void UpadateBulletCount() {
@@ -84,14 +84,20 @@ public class FireScript : Photon.MonoBehaviour
         */
         if (Input.GetKeyDown(KeyCode.R))
         {
-            if (havingBulletCount > 0)
+            if (havingBulletCount > 0 && currentBulletCount < 30)
             {
+                reloadAnimCheck = true;
+                //cm.AnimPlay("reload", -1, 0f);
                 StartCoroutine(reloadGun());
             }
             else
             {
                 Debug.Log("총알이 없다;");
             }
+        }
+        else if (Input.GetKeyUp(KeyCode.R))
+        {
+            reloadAnimCheck = false;
         }
     }
 
@@ -171,10 +177,11 @@ public class FireScript : Photon.MonoBehaviour
     {
         Debug.Log("재장전 시작");
         yield return new WaitForSeconds(3.0f);
-        if (havingBulletCount >= 30)
+        if (havingBulletCount >= Constants.m16MaxBulletCount)
         {
-            havingBulletCount -= 30;
-            currentBulletCount = 30;
+            int addBulletCount = Constants.m16MaxBulletCount - currentBulletCount;
+            havingBulletCount -= addBulletCount;
+            currentBulletCount += addBulletCount;
         }
         else
         {

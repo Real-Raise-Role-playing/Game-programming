@@ -36,10 +36,18 @@ public class NetworkCharacterMove : Photon.MonoBehaviour
         }
         else
         {
-            anim.SetBool("run", cm.run);
-            anim.SetBool("isWalk", cm.isWalk);
-            anim.SetFloat("inputH", cm.x);
-            anim.SetFloat("inputV", cm.z);
+            if (!om.InventoryOn)
+            {
+                anim.SetBool("run", cm.run);
+                anim.SetBool("isWalk", cm.isWalk);
+                anim.SetFloat("inputH", cm.x);
+                anim.SetFloat("inputV", cm.z);
+            }
+            else
+            {
+                anim.SetBool("run", false);
+                anim.SetBool("isWalk", false);
+            }
         }
     }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

@@ -4,14 +4,29 @@ using UnityEngine;
 
 public class CheckCollider : Photon.MonoBehaviour
 {
+    bool[] playerEquipState = new bool[Constants.equipmentMaxCount];
+    enum EQUIP_STATE
+    {
+        HELMET = 0,
+        //BAG,
+        GRENADE,
+        SHOVEL,
+        BLANKET,
+        CANTEEN
+    }
     GameObject menuPos;
 
-    public GameObject bagState = null;
+    //public GameObject bagState = null;
     public GameObject helmetsState = null;
     public GameObject canteen = null;
     public GameObject blanket = null;
     public GameObject shovel = null;
+    public GameObject grenade = null;
     public List<GameObject> itemList = null;
+    public bool pickUpAnimCheck = false;
+
+    //DropItemManager dim = null;
+    string dropItemName = string.Empty;
 
     private ItemDatabase idb = null;
     private Inventory iv = null;
@@ -22,23 +37,36 @@ public class CheckCollider : Photon.MonoBehaviour
     private string itemName = null;
     private PhotonView pv = null;
     private PhotonManager pm = null;
+    private FireScript fs = null;
     void Awake()
     {
         idb = GetComponentInChildren<ItemDatabase>();
         iv = GetComponentInChildren<Inventory>();
         pv = GetComponent<PhotonView>();
         pm = GetComponent<PhotonManager>();
+        fs = GetComponent<FireScript>();
         menuPos = GameObject.Find("MenuPos");
-
     }
+
+    //void Start()
+    //{
+        //dim = GameObject.Find("Items").GetComponent<DropItemManager>();
+    //}
 
     void Update()
     {
         if (!pv.isMine) { return; }
-        if (Input.GetKeyDown(KeyCode.F) && isGetItemflag)
+        if (Input.GetKeyDown(KeyCode.F) && isGetItemflag && itemObj != null)
         {
+            if (itemName == "helmet" && playerEquipState[(int)EQUIP_STATE.HELMET] ||
+                itemName == "blanket" && playerEquipState[(int)EQUIP_STATE.BLANKET] || itemName == "shovel" && playerEquipState[(int)EQUIP_STATE.SHOVEL] ||
+               itemName == "canteen" && playerEquipState[(int)EQUIP_STATE.CANTEEN] || itemName == "grenade" && playerEquipState[(int)EQUIP_STATE.GRENADE])
+            {
+                Debug.Log("두개 안돼");
+                return;
+            }
             idb.itemCount++;
-            addItemList(itemName);
+            insertItemList(itemName);
             iv.AddItem(idb.itemCount);
             idb.GetItemInfo(idb.itemCount);
             if (idb.selectItem == null)
@@ -50,25 +78,30 @@ public class CheckCollider : Photon.MonoBehaviour
             else if (idb.selectItem.itemType == ItemType.Equipment)
             {
                 pv.RPC("EquipObject", PhotonTargets.AllBufferedViaServer, itemName, true);
+                DropItemManager.instance.Action(dropItemName, false);
                 Debug.Log("무기 먹음");
-                pv.RPC("acquireObject", PhotonTargets.AllBufferedViaServer, false);
             }
             //먹은 아이템이 장식품이면
             else if (idb.selectItem.itemType == ItemType.Misc)
             {
                 Debug.Log("장식품 먹음");
-                pv.RPC("acquireObject", PhotonTargets.AllBufferedViaServer, false);
+                DropItemManager.instance.Action(dropItemName, false);
             }
             //먹은 아이템이 소모품이면
             else
             {
                 Debug.Log("소모품 먹음");
-                pv.RPC("acquireObject", PhotonTargets.AllBufferedViaServer, false);
+                DropItemManager.instance.Action(dropItemName, false);
             }
             isGetItemflag = false;
+            pickUpAnimCheck = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.F))
+        {
+            pickUpAnimCheck = false;
         }
     }
-    
+
     [PunRPC]
     void EquipObject(string itemName, bool state)
     {
@@ -76,26 +109,35 @@ public class CheckCollider : Photon.MonoBehaviour
         {
             helmetsState.SetActive(state);
             itemList.Add(helmetsState);
-        }
-        else if (itemName == "bag")
-        {
-            bagState.SetActive(state);
-            itemList.Add(bagState);
+            playerEquipState[(int)EQUIP_STATE.HELMET] = true;
         }
         else if (itemName == "canteen")
         {
             canteen.SetActive(state);
             itemList.Add(canteen);
+            playerEquipState[(int)EQUIP_STATE.CANTEEN] = true;
         }
         else if (itemName == "blanket")
         {
             blanket.SetActive(state);
             itemList.Add(blanket);
+            playerEquipState[(int)EQUIP_STATE.BLANKET] = true;
         }
         else if (itemName == "shovel")
         {
             shovel.SetActive(state);
             itemList.Add(shovel);
+            playerEquipState[(int)EQUIP_STATE.SHOVEL] = true;
+        }
+        else if (itemName == "grenade")
+        {
+            grenade.SetActive(state);
+            itemList.Add(grenade);
+            playerEquipState[(int)EQUIP_STATE.GRENADE] = true;
+        }
+        else if (itemName == "bulletSet")
+        {
+            fs.havingBulletCount += 30;
         }
         else
         {
@@ -103,19 +145,11 @@ public class CheckCollider : Photon.MonoBehaviour
         }
     }
 
-    [PunRPC]
-    void acquireObject(bool State)
-    {
-        if (itemObj != null)
-        {
-            itemObj.SetActive(State);
-        }
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (!pv.isMine)
         {
+            dropItemName = string.Empty;
             isGetItemflag = false;
             itemName = string.Empty;
             itemObj = null;
@@ -123,13 +157,16 @@ public class CheckCollider : Photon.MonoBehaviour
         }
         else
         {
-
-            int layerIndex = other.gameObject.layer;
-            //if (other.CompareTag("Pig")) //태그 비교할땐 컴페어를 주로 사용할 것
-            if (LayerMask.LayerToName(layerIndex) == "Item")
+            dropItemName = other.gameObject.name;
+            if (other.CompareTag("Item")) //태그 비교할땐 컴페어를 주로 사용할 것
+            //int layerIndex = other.gameObject.layer;
+            //if (LayerMask.LayerToName(layerIndex) == "Item")
             {
                 isGetItemflag = true;
-                itemName = other.gameObject.tag;
+                //itemName = other.gameObject.tag;
+                //공백으로 띄어쓰기
+                string[] _itempName = other.gameObject.name.Split('\x020');
+                itemName = _itempName[0];
                 itemObj = other.gameObject;
             }
         }
@@ -143,42 +180,42 @@ public class CheckCollider : Photon.MonoBehaviour
         }
         else
         {
-            int layerIndex = other.gameObject.layer;
-            if (LayerMask.LayerToName(layerIndex) == "Item")
-            {
-                isGetItemflag = false;
-                itemName = string.Empty;
-                itemObj = null;
-            }
+            dropItemName = string.Empty;
+            isGetItemflag = false;
+            itemName = string.Empty;
+            itemObj = null;
         }
     }
 
-    void addItemList(string itemName)
+    void insertItemList(string itemName)
     {
         if (itemName == "helmet")
         {
-
-            idb.Add("helmet", 1, 50, "Good helmets", idb.itemCount, ItemType.Equipment, itemObj);
+            idb.Insert("helmet", 1, 50, "Good helmets", idb.itemCount, ItemType.Equipment, itemObj);
         }
         else if (itemName == "firstaid")
         {
-            idb.Add("firstaid", 1, 10, "Good firstaid", idb.itemCount, ItemType.Consumption, itemObj);
-        }
-        else if (itemName == "bag")
-        {
-            idb.Add("bag", 1, 2000, "Beautiful Bag", idb.itemCount, ItemType.Equipment, itemObj);
+            idb.Insert("firstaid", 1, 10, "Good firstaid", idb.itemCount, ItemType.Consumption, itemObj);
         }
         else if (itemName == "canteen")
         {
-            idb.Add("canteen", 1, 800, "Beautiful canteen", idb.itemCount, ItemType.Equipment, itemObj);
+            idb.Insert("canteen", 1, 800, "Beautiful canteen", idb.itemCount, ItemType.Equipment, itemObj);
         }
         else if (itemName == "blanket")
         {
-            idb.Add("blanket", 1, 800, "Beautiful blanket", idb.itemCount, ItemType.Equipment, itemObj);
+            idb.Insert("blanket", 1, 800, "Beautiful blanket", idb.itemCount, ItemType.Equipment, itemObj);
         }
         else if (itemName == "shovel")
         {
-            idb.Add("shovel", 1, 800, "Beautiful shovel", idb.itemCount, ItemType.Equipment, itemObj);
+            idb.Insert("shovel", 1, 800, "Beautiful shovel", idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "grenade")
+        {
+            idb.Insert("grenade", 1, 800, "Beautiful grenade", idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "bulletSet")
+        {
+            idb.Insert("bulletSet", 1, 800, "Beautiful bulletSet", idb.itemCount, ItemType.Equipment, itemObj);
         }
         else
         {
