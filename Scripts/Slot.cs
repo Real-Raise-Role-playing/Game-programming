@@ -37,13 +37,19 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
     {
         iv.draggingItem.GetChild(0).SetParent(transform, true);
         transform.GetChild(0).localPosition = Vector3.zero;
+        //Debug.Log("transform.name : " + transform.gameObject.name);
         //**자식 오브젝트 아이템 이미지 레이케스트를 꺼야함;;;(마우스 Enter, Exit시 오류 발생가능)
-        if (iv.enteredSlot != null)
+        if (iv.enteredSlot == this)
+        {
+            return;
+        }
+        else if (iv.enteredSlot != null)
         {
             //임시 객체 선언 후 위치 교환
             ItemManager tempItem = item;
             item = iv.enteredSlot.item;
             iv.enteredSlot.item = tempItem;
+
             //아이템 위치 교환 시 위치 번호를 맞추기 위함
             item.itemCount = (number + 1);
             iv.enteredSlot.item.itemCount = (iv.enteredSlot.number + 1);
@@ -60,12 +66,13 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
             if (item.itemType != ItemType.NONE)
             {
                 int tempitemCount = item.itemCount;
-                Debug.Log(item.itemName.ToString() + "tempitemCount : " + tempitemCount);
+                Debug.Log(item.itemName + "  tempitemCount : " + tempitemCount);
                 itemDataBase.Remove(item.itemCount);
             }
             else
             {
                 Debug.Log("빈거 던지기 ㄴ");
+                return;
             }
         }
     }
