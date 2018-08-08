@@ -67,23 +67,17 @@ public class Inventory : MonoBehaviour
         {
             _slot.transform.GetChild(0).gameObject.SetActive(true);
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = _slot.item.itemImage;
-            Debug.Log(" if (_slot.item.itemValue == 1) 실행");
-            Debug.Log("name : " + _slot.item.itemName + "  value : " + _slot.item.itemValue);
         }
         else if (_slot.item.itemValue == -1)
         {
             _slot.transform.GetChild(0).gameObject.SetActive(true);
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("ItemImages/f");
-            Debug.Log(" else if (_slot.item.itemValue == -1) 실행");
-            Debug.Log("name : " + _slot.item.itemName + "  value : " + _slot.item.itemValue);
         }
         else
         {
             _slot.transform.GetChild(0).gameObject.SetActive(false);
             //_slot.transform.GetChild(0).GetComponent<Image>().sprite = null;
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("ItemImages/f");
-            Debug.Log(" else 실행");
-            Debug.Log("name : " + _slot.item.itemName + "  value : " + _slot.item.itemValue);
         }
     }
 
@@ -91,7 +85,6 @@ public class Inventory : MonoBehaviour
     {
         for (int i = 0; i < number; i++)
         {
-            Debug.Log("name : " + idb.items[i].itemName + " Value : " + idb.items[i].itemValue);
             if (slotScripts[i].item.itemValue == 0)
             {
                 slotScripts[i].item = idb.items[i];
@@ -115,7 +108,7 @@ public class Inventory : MonoBehaviour
             //Slot tempSlot = slotScripts[i];
             slotScripts[i] = slotScripts[i + 1];
         }
-        slotScripts[currentCount].item = new ItemManager("f", -1, 0, "null", ItemType.NONE, currentCount, Resources.Load<Sprite>("ItemImages/f"));
+        slotScripts[currentCount].item = new ItemManager("f", -1, "null", ItemType.NONE, currentCount, Resources.Load<Sprite>("ItemImages/f"));
         //slotScripts[currentCount].transform.GetChild(0);
     }
 }

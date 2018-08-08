@@ -37,7 +37,6 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
     {
         iv.draggingItem.GetChild(0).SetParent(transform, true);
         transform.GetChild(0).localPosition = Vector3.zero;
-        //Debug.Log("transform.name : " + transform.gameObject.name);
         //**자식 오브젝트 아이템 이미지 레이케스트를 꺼야함;;;(마우스 Enter, Exit시 오류 발생가능)
         if (iv.enteredSlot == this)
         {
@@ -65,9 +64,19 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
         {
             if (item.itemType != ItemType.NONE)
             {
-                int tempitemCount = item.itemCount;
-                Debug.Log(item.itemName + "  tempitemCount : " + tempitemCount);
-                itemDataBase.Remove(item.itemCount);
+                Debug.Log("원래 이름; : "+item.originalName);
+                foreach (GameObject _item in DropItemManager.instance.dropItemList)
+                {
+                    string[] SpText = _item.name.Split('(');
+                    if (SpText[0] == item.originalName)
+                    {
+                        Debug.Log(SpText[0]);
+                        DropItemManager.instance.Action(_item.name, true);
+                        _item.transform.position = new Vector3(transform.root.position.x, transform.root.position.y, transform.root.position.z);
+                        itemDataBase.Remove(item.itemCount);
+                        break;
+                    }
+                }
             }
             else
             {

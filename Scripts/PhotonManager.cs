@@ -27,8 +27,8 @@ public class PhotonManager : Photon.MonoBehaviour
 
         //플레이어 위치------------------------------
         float posX = Random.Range(1350.0f, 1400.0f);
-        float posY = 65.0f;
-        //float posY = 150.0f;
+        //float posY = 65.0f;
+        float posY = 10.0f;
         float posZ = Random.Range(2300.0f, 2350.0f);
         Vector3 playerPos = new Vector3(posX, posY, posZ);
         //---------------------------------------------
@@ -82,7 +82,7 @@ public class PhotonManager : Photon.MonoBehaviour
         playerList.Clear();
         playerList.AddRange(GameObject.FindGameObjectsWithTag("Player"));
         foreach (GameObject player in playerList) {
-            Debug.Log(player.GetComponent<PhotonView>().viewID);
+            //Debug.Log(player.GetComponent<PhotonView>().viewID);
             player.name = player.GetComponent<PhotonView>().viewID.ToString();
         }
     }

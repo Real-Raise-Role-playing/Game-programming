@@ -12,10 +12,10 @@ public enum ItemType
 
 [System.Serializable]
 public class ItemManager  {
+
     public string itemName { get; set; }
+    public string originalName { get; set; }
     public int itemValue { get; set; }
-    public int itemPrice { get; set; }
-    public string itemDesc { get; set; }
     public ItemType itemType { get; set; }
     public int itemCount { get; set; }
     public Sprite itemImage { get; set; }
@@ -39,12 +39,11 @@ public class ItemManager  {
         return (this.itemCount.Equals(other.itemCount));
     }
 
-    public ItemManager(string _itemName, int _itemValue, int _itemPrice, string _itemDesc, ItemType _itemType, int _itemCount, Sprite _itemImage)
+    public ItemManager(string _itemName, int _itemValue, string _originalName, ItemType _itemType, int _itemCount, Sprite _itemImage)
     {
         itemName = _itemName;
         itemValue = _itemValue;
-        itemPrice = _itemPrice;
-        itemDesc = _itemDesc;
+        originalName = _originalName;
         itemType = _itemType;
         itemCount = _itemCount;
         itemImage = _itemImage;

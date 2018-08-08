@@ -27,7 +27,7 @@ public class NetworkCharacterMove : Photon.MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         if (!pv.isMine)
         {

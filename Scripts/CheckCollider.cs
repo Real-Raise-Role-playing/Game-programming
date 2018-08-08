@@ -34,8 +34,12 @@ public class CheckCollider : Photon.MonoBehaviour
     private string itemName = null;
     private PhotonView pv = null;
     private FireScript fs = null;
+    private OptionManager om = null;
+    private PlayerState ps = null;
     void Awake()
     {
+        ps = GetComponent<PlayerState>();
+        om = GetComponent<OptionManager>();
         idb = GetComponentInChildren<ItemDatabase>();
         iv = GetComponentInChildren<Inventory>();
         pv = GetComponent<PhotonView>();
@@ -48,7 +52,6 @@ public class CheckCollider : Photon.MonoBehaviour
         if (!pv.isMine) { return; }
         if (Input.GetKeyDown(KeyCode.F) && isGetItemflag && itemObj != null)
         {
-
             //2개이상 템을 먹지 못하도록 제한
             if (itemName == "helmet" && playerEquipState[(int)EQUIP_STATE.HELMET] ||
                 itemName == "blanket" && playerEquipState[(int)EQUIP_STATE.BLANKET] || itemName == "shovel" && playerEquipState[(int)EQUIP_STATE.SHOVEL] ||
@@ -101,6 +104,33 @@ public class CheckCollider : Photon.MonoBehaviour
         else if (Input.GetKeyUp(KeyCode.F) && !isGetItemflag)
         {
             pickUpAnimCheck = false;
+        }
+        if (iv.enteredSlot != null && Input.GetMouseButtonDown(1) && om.InventoryOn)
+        {
+            Debug.Log("먹을 아이템 : " + iv.enteredSlot.item.itemName);
+
+            if (iv.enteredSlot.item.itemType == ItemType.Consumption)
+            {
+                if (iv.enteredSlot.item.itemName == "firstaid")
+                {
+                    if (ps.currHp <= 100)
+                    {
+                        ps.currHp += 30;
+                        if (ps.currHp > 100)
+                        {
+                            ps.currHp = 100;
+                        }
+                        //사용 하였으면 삭제
+                        idb.Remove(iv.enteredSlot.item.itemCount);
+                        ps.playerStateUpdate();
+                    }
+                    else
+                    {
+                        Debug.Log("사용 불가");
+                        return;
+                    }
+                }
+            }
         }
     }
 
@@ -189,11 +219,12 @@ public class CheckCollider : Photon.MonoBehaviour
         }
     }
 
+    /*
     void addItemList(string itemName)
     {
         if (itemName == "helmet")
         {
-            idb.Add("helmet", 1, 50, "Good helmets", idb.itemCount, ItemType.Equipment, itemObj);
+            idb.Add("helmet", 1, "Good helmets", idb.itemCount, ItemType.Equipment, itemObj);
         }
         else if (itemName == "firstaid")
         {
@@ -224,7 +255,45 @@ public class CheckCollider : Photon.MonoBehaviour
             Debug.Log("응 오류.");
         }
     }
+    */
 
+    void addItemList(string itemName)
+    {
+        if (itemName == "helmet")
+        {
+            idb.Add("helmet", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "firstaid")
+        {
+            idb.Add("firstaid", 1, dropItemName, idb.itemCount, ItemType.Consumption, itemObj);
+        }
+        else if (itemName == "canteen")
+        {
+            idb.Add("canteen", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "blanket")
+        {
+            idb.Add("blanket", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "shovel")
+        {
+            idb.Add("shovel", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "grenade")
+        {
+            idb.Add("grenade", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "bulletSet")
+        {
+            idb.Add("bulletSet", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else
+        {
+            Debug.Log("응 오류.");
+        }
+    }
+
+    /*
     void insertItemList(string itemName)
     {
         if (itemName == "helmet")
@@ -254,6 +323,43 @@ public class CheckCollider : Photon.MonoBehaviour
         else if (itemName == "bulletSet")
         {
             idb.Insert("bulletSet", 1, 800, "Beautiful bulletSet", idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else
+        {
+            Debug.Log("응 오류.");
+        }
+    }
+    */
+
+    void insertItemList(string itemName)
+    {
+        if (itemName == "helmet")
+        {
+            idb.Insert("helmet", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "firstaid")
+        {
+            idb.Insert("firstaid", 1, dropItemName, idb.itemCount, ItemType.Consumption, itemObj);
+        }
+        else if (itemName == "canteen")
+        {
+            idb.Insert("canteen", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "blanket")
+        {
+            idb.Insert("blanket", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "shovel")
+        {
+            idb.Insert("shovel", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "grenade")
+        {
+            idb.Insert("grenade", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
+        }
+        else if (itemName == "bulletSet")
+        {
+            idb.Insert("bulletSet", 1, dropItemName, idb.itemCount, ItemType.Equipment, itemObj);
         }
         else
         {

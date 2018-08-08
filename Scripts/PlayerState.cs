@@ -29,7 +29,8 @@ public class PlayerState : Photon.MonoBehaviour
     public  CameraControl           camCon = null;
     public  CharacterMove           charMove = null;
     public  OptionManager           optionManager = null;
-    private StateBarManager         sbm = null;
+    //private StateBarManager         sbm = null;
+    private StateUIControl          suc = null;
 
     void Awake()
     {
@@ -45,12 +46,14 @@ public class PlayerState : Photon.MonoBehaviour
         colliders = GetComponentsInChildren<Collider>();
         canvas = GetComponentsInChildren<Canvas>();
         checkColliderCs = GetComponent<CheckCollider>();
-        sbm = GetComponentInChildren<StateBarManager>();
+        //sbm = GetComponentInChildren<StateBarManager>();
+        suc = GetComponentInChildren<StateUIControl>();
     }
     public void playerStateUpdate()
     {
         //void SetPlayerVisible(bool isVisible, int myHealth, int playerState)
-        sbm.HpBarSlider.value = currHp * 0.01f;
+        //sbm.HpBarSlider.value = currHp * 0.01f;
+        suc.HpBarSlider.value = currHp;
         if (currHp <= 0)
         {
             pv.RPC("SetPlayerVisible", PhotonTargets.AllBufferedViaServer, false, currHp, Constants.DEAD);

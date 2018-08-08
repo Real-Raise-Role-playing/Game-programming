@@ -35,20 +35,22 @@ public class ItemDatabase : MonoBehaviour
         //시작 아이템 정보
 
         iv = transform.root.GetComponentInChildren<Inventory>();
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/grenade"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/canteen"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/firstaid"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
+        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/grenade_base"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
+        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/canteen_base"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
+        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/firstaid_base"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
 
-        Add("grenade", 1, 500, "Good grenade", 1, ItemType.Equipment, startItemObjs[0]);
-        Add("canteen", 1, 500, "Best canteen", 2, ItemType.Equipment, startItemObjs[1]);
-        Add("firstaid", 1, 50, "Delicious firstaid", 3, ItemType.Consumption, startItemObjs[2]);
+        Add("grenade", 1, "grenade_base", 1, ItemType.Equipment, startItemObjs[0]);
+        Add("canteen", 1, "canteen_base", 2, ItemType.Equipment, startItemObjs[1]);
+        Add("firstaid", 1, "firstaid_base", 3, ItemType.Consumption, startItemObjs[2]);
+        
         foreach (GameObject item in startItemObjs)
         {
+            DropItemManager.instance.dropItemList.Add(item);
             item.SetActive(false);
         }
         for (int i = itemCount + 1; i < Constants.maxInventoryCount; i++) 
         {
-            Add("f", 1, 0, "null", i, ItemType.NONE, null);
+            Add("f", 1, "null", i, ItemType.NONE, null);
         }
 
         for (int i = 0; i < items.Count; i++)
@@ -74,20 +76,20 @@ public class ItemDatabase : MonoBehaviour
             iv.slotScripts[i].transform.GetChild(0).GetComponent<Image>().sprite = iv.slotScripts[i + 1].transform.GetChild(0).GetComponent<Image>().sprite;
         }
         //********마지막 슬롯의 item.itemValue를 0으로 해줘야 다음 이미지가 들어갈때 수정이됨************* 
-        iv.slotScripts[itemCount - 1].item = new ItemManager("f", 0, 0, "null", ItemType.NONE, itemCount - 1, Resources.Load<Sprite>("ItemImages/f"));
+        iv.slotScripts[itemCount - 1].item = new ItemManager("f", 0, "null", ItemType.NONE, itemCount - 1, Resources.Load<Sprite>("ItemImages/f"));
         //iv.slotScripts[itemCount - 1].transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("ItemImages/f");
         iv.slotScripts[itemCount-1].transform.GetChild(0).gameObject.SetActive(false);
         itemCount--;
     }
-    public void Add(string itemName, int itemValue, int itemPrice, string itemDesc, int _itemCount, ItemType itemType, GameObject itemObj)
+    public void Add(string itemName, int itemValue, string originalName, int _itemCount, ItemType itemType, GameObject itemObj)
     {
-        items.Add(new ItemManager(itemName, itemValue, itemPrice, itemDesc, itemType, _itemCount, Resources.Load<Sprite>("ItemImages/" + itemName)));
+        items.Add(new ItemManager(itemName, itemValue, originalName, itemType, _itemCount, Resources.Load<Sprite>("ItemImages/" + itemName)));
         itemObjs.Add(itemObj);
     }
 
-    public void Insert(string itemName, int itemValue, int itemPrice, string itemDesc, int _itemCount, ItemType itemType, GameObject itemObj)
+    public void Insert(string itemName, int itemValue, string originalName, int _itemCount, ItemType itemType, GameObject itemObj)
     {
-        items.Insert((_itemCount - 1), new ItemManager(itemName, itemValue, itemPrice, itemDesc, itemType, _itemCount, Resources.Load<Sprite>("ItemImages/" + itemName)));
+        items.Insert((_itemCount - 1), new ItemManager(itemName, itemValue, originalName, itemType, _itemCount, Resources.Load<Sprite>("ItemImages/" + itemName)));
         itemObjs.Insert((_itemCount - 1), itemObj);
     }
 

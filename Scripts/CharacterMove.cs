@@ -18,6 +18,7 @@ public class CharacterMove : Photon.MonoBehaviour
     OptionManager om = null;
     FireScript fs = null;
     StateBarManager sbm = null;
+    StateUIControl suc = null;
     CheckCollider cc = null;
     public Transform cameraTransform;
 
@@ -51,8 +52,8 @@ public class CharacterMove : Photon.MonoBehaviour
     {
         //this.enabled = GetComponent<PhotonView>().isMine;
         ps = GetComponent<PlayerState>();
-        //suc = GetComponentInChildren<StateUIControl>();
-        sbm = GetComponentInChildren<StateBarManager>();
+        suc = GetComponentInChildren<StateUIControl>();
+        //sbm = GetComponentInChildren<StateBarManager>();
         //tr = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         pv = GetComponent<PhotonView>();
@@ -193,7 +194,7 @@ public class CharacterMove : Photon.MonoBehaviour
             //    AnimPlay("JUMP01", -1, 0f);
             //}
             //점프 애니메이션 수정
-            Debug.Log("점프");
+            //Debug.Log("점프");
             yVelocity = jumpSpeed;
             jumpCount++;
             ps.isGrounded = false;
@@ -217,7 +218,7 @@ public class CharacterMove : Photon.MonoBehaviour
 
         //-----------------------------------------                                                                 
         //에임 공격
-        if (!aim && Input.GetMouseButtonDown(1))
+        if (!aim && Input.GetMouseButtonDown(1) && !om.InventoryOn)
         {
             Camera.main.fieldOfView = normalFOV;
             AnimPlay("AIM", -1, 0f);
@@ -229,7 +230,7 @@ public class CharacterMove : Photon.MonoBehaviour
             //WeaponsCamera.SetActive(true);
             //-----------------------
         }
-        else if (aim && Input.GetMouseButtonDown(1))
+        else if (aim && Input.GetMouseButtonDown(1) && !om.InventoryOn)
         {
             Camera.main.fieldOfView = scopedFOV;
             AnimBool("aim", false);
@@ -318,13 +319,12 @@ public class CharacterMove : Photon.MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift))
         //if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            //suc.HangerBarSlider.value -= 0.5f;
+            suc.HangerBarSlider.value -= 0.5f;
 
-            sbm.HangerBarSlider.value -= 0.005f;
-            if (sbm.HangerBarSlider.value <= 0.2f)
-            //if (suc.HangerBarSlider.value <= 2.0f)
+            //sbm.HangerBarSlider.value -= 0.005f;
+            //if (sbm.HangerBarSlider.value <= 0.2f)
+            if (suc.HangerBarSlider.value <= 2.0f)
             {
-
                 moveSpeed = Constants.DefaultMoveSpeed;
                 run = false;
             }
@@ -343,8 +343,8 @@ public class CharacterMove : Photon.MonoBehaviour
         {
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
             moveSpeed -= Constants.AddMoveSpeed;
-            //suc.HangerBarSlider.value += 0.3f;
-            sbm.HangerBarSlider.value += 0.003f;
+            suc.HangerBarSlider.value += 0.3f;
+            //sbm.HangerBarSlider.value += 0.003f;
             if (moveSpeed <= Constants.DefaultMoveSpeed)
             {
                 moveSpeed = Constants.DefaultMoveSpeed;
