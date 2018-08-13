@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class FireScript : Photon.MonoBehaviour
 {
+    enum PARTICLE_STATE
+    {
+        SHOTLIGHT,
+        BLOOD
+    }
+
     CharacterMove cm = null;
 
     public Transform cameraTransform = null;
@@ -25,6 +31,8 @@ public class FireScript : Photon.MonoBehaviour
     //Kar98 사운드 파일
     private AudioClip kar98 = null;
 
+    ParticleSystem[] particleLight;
+    public GameObject particleBlood;
     //탄 관련
     StateUIControl suc = null;
     //현재 탄창에 있는 총알 수
@@ -47,6 +55,7 @@ public class FireScript : Photon.MonoBehaviour
         sfx = GetComponent<AudioSource>();
         suc = GetComponentInChildren<StateUIControl>();
         kar98 = Resources.Load<AudioClip>("Sounds\\Kar98");
+        particleLight = transform.root.GetComponentsInChildren<ParticleSystem>();
     }
 
     // Use this for initialization
@@ -62,7 +71,8 @@ public class FireScript : Photon.MonoBehaviour
         reloadAnimCheck = false;
     }
     [PunRPC]
-    void UpadateBulletCount() {
+    void UpadateBulletCount()
+    {
         suc.currentBulletText.text = currentBulletCount.ToString();
         suc.havingBulletText.text = "/ " + havingBulletCount.ToString();
     }
@@ -135,6 +145,8 @@ public class FireScript : Photon.MonoBehaviour
                     //sfx.PlayOneShot(kar98,1.0f);
                     //kar98Sound();
                 }
+                //particleLight[(int)PARTICLE_STATE.SHOTLIGHT].Play();
+                pv.RPC("WeaponLight", PhotonTargets.All, "kar98");
             }
             //연발
             if (Input.GetMouseButton(0) && !SingleShot)
@@ -176,7 +188,7 @@ public class FireScript : Photon.MonoBehaviour
     IEnumerator reloadGun()
     {
         Debug.Log("재장전 시작");
-        yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(2.8f);
         if (havingBulletCount >= Constants.m16MaxBulletCount)
         {
             int addBulletCount = Constants.m16MaxBulletCount - currentBulletCount;
@@ -205,6 +217,15 @@ public class FireScript : Photon.MonoBehaviour
         if (waepon == "kar98")
         {
             sfx.PlayOneShot(kar98, 1.0f);
+        }
+    }
+
+    [PunRPC]
+    void WeaponLight(string waepon)
+    {
+        if (waepon == "kar98")
+        {
+            particleLight[(int)PARTICLE_STATE.SHOTLIGHT].Play();
         }
     }
 

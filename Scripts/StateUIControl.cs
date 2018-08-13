@@ -7,14 +7,21 @@ public class StateUIControl : Photon.MonoBehaviour
 {
     [HideInInspector]
     public GameObject HpBarObj;
+    [HideInInspector]
     public GameObject HangerBarObj;
+    [HideInInspector]
     public Slider HpBarSlider;
+    [HideInInspector]
     public Slider HangerBarSlider;
+    [HideInInspector]
     public GameObject currentBulletObj;
+    [HideInInspector]
     public GameObject havingBulletObj;
+    [HideInInspector]
     public Text currentBulletText;
+    [HideInInspector]
     public Text havingBulletText;
-    PhotonView pv = null;
+    private PhotonView pv = null;
     // Use this for initialization
     void Awake()
     {
@@ -54,6 +61,21 @@ public class StateUIControl : Photon.MonoBehaviour
         else
         {
             this.enabled = false;
+        }
+    }
+    void Update()
+    {
+        if (WorldTimerManager.instance.worldTimer < 5)
+        {
+            HangerBarSlider.value -= 0.05f;
+        }
+        else if (WorldTimerManager.instance.worldTimer < 20)
+        {
+            HangerBarSlider.value -= 0.1f;
+        }
+        else if (WorldTimerManager.instance.worldTimer < 40)
+        {
+            HangerBarSlider.value -= 0.2f;
         }
     }
 }

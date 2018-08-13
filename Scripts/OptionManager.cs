@@ -81,16 +81,8 @@ public class OptionManager : MonoBehaviour
             if (InventoryOn == true)
             {
                 NoneCursor();
-                //InventoryObj.transform.position = new Vector3((Screen.width - (Screen.width / 5)), InventoryObj.transform.position.y, InventoryObj.transform.position.z);
 
-                //----왜 이런 작업이 있어야하는가....(인벤토리 멀어짐 현상)
                 InventoryObj.transform.position = new Vector3((Screen.width - (Screen.width / 5)), InventoryObj.transform.position.y, 0.0f);
-                foreach (Slot item in Iv.slotScripts)
-                {
-                    item.transform.position = new Vector3(item.transform.position.x, item.transform.position.y, 0.0f);
-                }
-                //--------------------------------------
-
                 InventoryObj.SetActive(true);
                 //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
                 fireScript.enabled = false;
@@ -104,6 +96,7 @@ public class OptionManager : MonoBehaviour
                 //옵션을 사용 중이라면 총알 발사 및 여러 행동 제한.
                 fireScript.enabled = true;
                 cameraControlScript.enabled = true;
+                suc.enabled = true;
             }
         }
         //}

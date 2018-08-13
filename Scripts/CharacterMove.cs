@@ -319,9 +319,8 @@ public class CharacterMove : Photon.MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift))
         //if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            suc.HangerBarSlider.value -= 0.5f;
+            //suc.HangerBarSlider.value -= 0.5f;
 
-            //sbm.HangerBarSlider.value -= 0.005f;
             //if (sbm.HangerBarSlider.value <= 0.2f)
             if (suc.HangerBarSlider.value <= 2.0f)
             {
@@ -343,8 +342,7 @@ public class CharacterMove : Photon.MonoBehaviour
         {
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
             moveSpeed -= Constants.AddMoveSpeed;
-            suc.HangerBarSlider.value += 0.3f;
-            //sbm.HangerBarSlider.value += 0.003f;
+            //suc.HangerBarSlider.value += 0.3f;
             if (moveSpeed <= Constants.DefaultMoveSpeed)
             {
                 moveSpeed = Constants.DefaultMoveSpeed;

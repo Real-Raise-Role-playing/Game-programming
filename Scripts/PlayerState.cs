@@ -7,7 +7,6 @@ public class PlayerState : Photon.MonoBehaviour
     private FireScript fireScript = null;
     private PhotonView pv = null;
     public GameObject hpBarObj = null;
-    public UISlider healthUI;
 
     //플레이어 상태
     //public bool isDead = false;

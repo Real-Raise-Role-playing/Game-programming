@@ -70,9 +70,9 @@ public class Slot : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerE
                     string[] SpText = _item.name.Split('(');
                     if (SpText[0] == item.originalName)
                     {
-                        Debug.Log(SpText[0]);
+                        Debug.Log("버린 아이템 이름 : " + SpText[0]);
                         DropItemManager.instance.Action(_item.name, true);
-                        _item.transform.position = new Vector3(transform.root.position.x, transform.root.position.y, transform.root.position.z);
+                        _item.transform.position = new Vector3(transform.root.position.x, _item.transform.position.y, transform.root.position.z);
                         itemDataBase.Remove(item.itemCount);
                         break;
                     }

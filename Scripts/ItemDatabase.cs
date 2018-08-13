@@ -8,11 +8,15 @@ public class ItemDatabase : MonoBehaviour
     //public static ItemDatabase instance;
     [HideInInspector]
     public List<ItemManager> items = new List<ItemManager>();
+    public List<ItemManager> equipItems = new List<ItemManager>();
 
     public List<string> itemsName = new List<string>();
     public List<GameObject> itemObjs = new List<GameObject>();
-    List<GameObject> startItemObjs = new List<GameObject>();
-    public int itemCount = Constants.startItemCount;
+    public List<GameObject> equipItemObjs = new List<GameObject>();
+
+    [HideInInspector]
+    public int itemCount = 0;
+    //public int itemCount = Constants.startItemCount;
     public ItemManager selectItem = null;
     Inventory iv = null;
 
@@ -26,37 +30,7 @@ public class ItemDatabase : MonoBehaviour
     void Start()
     {
         itemsName.Capacity = 25;
-        //Instantiate("items/axe", Vector3.zero, Quaternion.identity) as GameObject
-        //아이템 관리할 리스트 초기화
-        //for (int i = 0; i < Constants.maxInventoryCount; i++)
-        //{
-        //    itemObjs.Add(null);
-        //}
-        //시작 아이템 정보
-
         iv = transform.root.GetComponentInChildren<Inventory>();
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/grenade_base"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/canteen_base"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
-        startItemObjs.Add(Instantiate(Resources.Load<GameObject>("Items/firstaid_base"), new Vector3(0, 0, 0), Quaternion.identity) as GameObject);
-
-        Add("grenade", 1, "grenade_base", 1, ItemType.Equipment, startItemObjs[0]);
-        Add("canteen", 1, "canteen_base", 2, ItemType.Equipment, startItemObjs[1]);
-        Add("firstaid", 1, "firstaid_base", 3, ItemType.Consumption, startItemObjs[2]);
-        
-        foreach (GameObject item in startItemObjs)
-        {
-            DropItemManager.instance.dropItemList.Add(item);
-            item.SetActive(false);
-        }
-        for (int i = itemCount + 1; i < Constants.maxInventoryCount; i++) 
-        {
-            Add("f", 1, "null", i, ItemType.NONE, null);
-        }
-
-        for (int i = 0; i < items.Count; i++)
-        {
-            itemsName.Add(items[i].itemName);
-        }
     }
     public void Remove(int _itemCount)
     {
@@ -83,8 +57,12 @@ public class ItemDatabase : MonoBehaviour
     }
     public void Add(string itemName, int itemValue, string originalName, int _itemCount, ItemType itemType, GameObject itemObj)
     {
-        items.Add(new ItemManager(itemName, itemValue, originalName, itemType, _itemCount, Resources.Load<Sprite>("ItemImages/" + itemName)));
-        itemObjs.Add(itemObj);
+        if (itemValue == 1)
+        {
+            Debug.Log("if (itemValue == 1) 실행");
+            items.Add(new ItemManager(itemName, itemValue, originalName, itemType, _itemCount, Resources.Load<Sprite>("ItemImages/" + itemName)));
+            itemObjs.Add(itemObj);
+        }
     }
 
     public void Insert(string itemName, int itemValue, string originalName, int _itemCount, ItemType itemType, GameObject itemObj)

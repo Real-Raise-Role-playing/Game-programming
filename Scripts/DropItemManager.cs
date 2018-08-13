@@ -35,10 +35,10 @@ public class DropItemManager : Photon.MonoBehaviour
     [PunRPC]
     void acquireObject(string dropItemName, bool state)
     {
-        Debug.Log("acquireObject(string itemName, bool State)" + "실행");
+        //Debug.Log("acquireObject(string itemName, bool State)" + "실행");
         foreach (GameObject item in dropItemList)
         {
-            Debug.Log(item.name);
+            //Debug.Log(item.name);
             if (item.name == dropItemName)
             {
                 item.SetActive(state);
