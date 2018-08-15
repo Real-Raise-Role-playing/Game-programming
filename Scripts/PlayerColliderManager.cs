@@ -2,12 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerColliderManager : MonoBehaviour {
+public class PlayerColliderManager : Photon.MonoBehaviour
+{
+
     PlayerState ps = null;
     PhotonView pv = null;
+    ParticleManager pm = null;
+    ParticleSystem[] Particles;
+    //StateUIControl suc = null;
+    StateBarManager sbm = null;
     // Use this for initialization
     void Start()
     {
+        //suc = transform.root.GetComponentInChildren<StateUIControl>();
+        sbm = transform.root.GetComponentInChildren<StateBarManager>();
+        pm = transform.root.GetComponent<ParticleManager>();
         pv = transform.root.GetComponent<PhotonView>();
         ps = transform.root.GetComponent<PlayerState>();
     }
@@ -25,6 +34,8 @@ public class PlayerColliderManager : MonoBehaviour {
         }
         else if (collisionLayer == LayerMask.NameToLayer("Bullet"))
         {
+            sbm.beShotImg.color = sbm.beShotImgColor;
+            //suc.beShotImg.color = suc.beShotImgColor;
             Destroy(other.gameObject);
             if (this.gameObject.name == "HeadCollider")
             {
@@ -48,6 +59,7 @@ public class PlayerColliderManager : MonoBehaviour {
                 {
                     Debug.Log("허벅지 맞음");
                     ps.currHp -= 12;
+
                 }
             }
             else if (this.gameObject.name == "BodyCollider")
@@ -58,7 +70,11 @@ public class PlayerColliderManager : MonoBehaviour {
                     ps.currHp -= 20;
                 }
             }
+            string spotName = this.gameObject.name;
+            //pv.RPC("ParticleSystemControl", PhotonTargets.All, spotName);
+            pm.Action(this.gameObject.name);
             ps.playerStateUpdate();
+            StartCoroutine(sbm.delayTime());
         }
         else if (collisionLayer == LayerMask.NameToLayer("Ground") && !ps.isGrounded)
         {
@@ -69,6 +85,8 @@ public class PlayerColliderManager : MonoBehaviour {
             }
         }
     }
+    
+   
 
     private void OnDestroy()
     {

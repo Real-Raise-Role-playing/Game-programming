@@ -4,14 +4,6 @@ using UnityEngine;
 
 public class FireScript : Photon.MonoBehaviour
 {
-    enum PARTICLE_STATE
-    {
-        SHOTLIGHT,
-        BLOOD
-    }
-
-    CharacterMove cm = null;
-
     public Transform cameraTransform = null;
     public float forwardPower = Constants.forwardPower;
     public float upPower = Constants.upPower;
@@ -23,18 +15,19 @@ public class FireScript : Photon.MonoBehaviour
     public bool shotState = false;
     private bool SingleShot = true;
     private float nextFire = 0.0f;
-    float cameraDefaultZoom;
-    bool toggle = false;
     private PhotonView pv = null;
     //오디오 컴포턴트 할당 변수
     private AudioSource sfx = null;
     //Kar98 사운드 파일
     private AudioClip kar98 = null;
 
-    ParticleSystem[] particleLight;
-    public GameObject particleBlood;
+    public ParticleSystem weaponParticle;
+    //private ParticleManager pm = null;
+
     //탄 관련
-    StateUIControl suc = null;
+    //StateUIControl suc = null;
+    StateBarManager sbm = null;
+
     //현재 탄창에 있는 총알 수
     public int currentBulletCount;
     //가방에 가지고 있는 총알 수
@@ -46,16 +39,16 @@ public class FireScript : Photon.MonoBehaviour
 
     void Awake()
     {
-        cm = GetComponent<CharacterMove>();
         fireObject = (GameObject)Resources.Load("Bullet1");
         fireObjectRb = fireObject.GetComponent<Rigidbody>();
         emptyFireObject = (GameObject)Resources.Load("Bullet2");
         emptyFireObjectRb = emptyFireObject.GetComponent<Rigidbody>();
         pv = GetComponent<PhotonView>();
         sfx = GetComponent<AudioSource>();
-        suc = GetComponentInChildren<StateUIControl>();
+        //suc = GetComponentInChildren<StateUIControl>();
+        sbm = GetComponentInChildren<StateBarManager>();
         kar98 = Resources.Load<AudioClip>("Sounds\\Kar98");
-        particleLight = transform.root.GetComponentsInChildren<ParticleSystem>();
+        //pm = transform.root.GetComponentInChildren<ParticleManager>();
     }
 
     // Use this for initialization
@@ -64,17 +57,16 @@ public class FireScript : Photon.MonoBehaviour
         cameraTransform = Camera.main.GetComponent<Transform>();
         //cameraTransform = GameObject.Find("MainCamera").GetComponent<Transform>();
         //this.enabled = GetComponent<PhotonView>().isMine;
-        cameraDefaultZoom = Camera.main.fieldOfView;
-
         currentBulletCount = 0;
         havingBulletCount = Constants.m16InitBulletCount;
         reloadAnimCheck = false;
     }
+
     [PunRPC]
     void UpadateBulletCount()
     {
-        suc.currentBulletText.text = currentBulletCount.ToString();
-        suc.havingBulletText.text = "/ " + havingBulletCount.ToString();
+        sbm.currentBulletText.text = currentBulletCount.ToString();
+        sbm.havingBulletText.text = "/ " + havingBulletCount.ToString();
     }
     // Update is called once per frame
     void Update()
@@ -145,7 +137,7 @@ public class FireScript : Photon.MonoBehaviour
                     //sfx.PlayOneShot(kar98,1.0f);
                     //kar98Sound();
                 }
-                //particleLight[(int)PARTICLE_STATE.SHOTLIGHT].Play();
+                //particles[(int)PARTICLE_STATE.SHOTLIGHT].Play();
                 pv.RPC("WeaponLight", PhotonTargets.All, "kar98");
             }
             //연발
@@ -171,18 +163,18 @@ public class FireScript : Photon.MonoBehaviour
             }
         }
         //------------------------------------------------------------------------------------
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (toggle == true)
-            {
-                Camera.main.fieldOfView = cameraDefaultZoom;
-            }
-            else
-            {
-                Camera.main.fieldOfView = 10;
-            }
-            toggle = !toggle;
-        }
+        //if (Input.GetMouseButtonDown(1))
+        //{
+        //    if (toggle == true)
+        //    {
+        //        Camera.main.fieldOfView = cameraDefaultZoom;
+        //    }
+        //    else
+        //    {
+        //        Camera.main.fieldOfView = 10;
+        //    }
+        //    toggle = !toggle;
+        //}
     }
 
     IEnumerator reloadGun()
@@ -225,7 +217,7 @@ public class FireScript : Photon.MonoBehaviour
     {
         if (waepon == "kar98")
         {
-            particleLight[(int)PARTICLE_STATE.SHOTLIGHT].Play();
+            weaponParticle.Play();
         }
     }
 

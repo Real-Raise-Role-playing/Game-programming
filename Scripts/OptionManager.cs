@@ -11,7 +11,7 @@ public class OptionManager : MonoBehaviour
     FireScript fireScript = null;
     CameraControl cameraControlScript = null;
     PhotonView pv = null;
-    Inventory Iv = null;
+
     //PlayerState playerState = null; //플레이어 죽음 처리
     public bool InventoryOn = false;
 
@@ -37,7 +37,6 @@ public class OptionManager : MonoBehaviour
         InventoryObj = GameObject.Find("Inventory");
         pv = GetComponent<PhotonView>();
         ps = GetComponent<PlayerState>();
-        Iv = GetComponentInChildren<Inventory>();
         fireScript = GetComponent<FireScript>();
         cameraControlScript = Camera.main.GetComponent<CameraControl>();
         suc = GetComponentInChildren<ScopeUiControl>();

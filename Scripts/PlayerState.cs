@@ -7,6 +7,7 @@ public class PlayerState : Photon.MonoBehaviour
     private FireScript fireScript = null;
     private PhotonView pv = null;
     public GameObject hpBarObj = null;
+    public GameObject otherUIobj = null;
 
     //플레이어 상태
     //public bool isDead = false;
@@ -29,30 +30,40 @@ public class PlayerState : Photon.MonoBehaviour
     public  CharacterMove           charMove = null;
     public  OptionManager           optionManager = null;
     //private StateBarManager         sbm = null;
-    private StateUIControl          suc = null;
-
+    //private StateUIControl          suc = null;
+    private StateBarManager sbm = null;
     void Awake()
     {
+        pv = GetComponent<PhotonView>();
+        if (pv.isMine)
+        {
         //player들이 동적할당이 되기전에 가져오는 것인가..?
         camCon = Camera.main.GetComponent<CameraControl>();
         optionManager = GetComponent<OptionManager>();
         charMove = GetComponent<CharacterMove>();
         fireScript = GetComponent<FireScript>();
         currHp = Constants.initHp;
-        pv = GetComponent<PhotonView>();
         renderers = GetComponentsInChildren<MeshRenderer>();
         skinRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
         colliders = GetComponentsInChildren<Collider>();
         canvas = GetComponentsInChildren<Canvas>();
         checkColliderCs = GetComponent<CheckCollider>();
         //sbm = GetComponentInChildren<StateBarManager>();
-        suc = GetComponentInChildren<StateUIControl>();
+        //suc = GetComponentInChildren<StateUIControl>();
+        //suc = GetComponentInChildren<StateUIControl>();
+        sbm = GetComponentInChildren<StateBarManager>();
+        }
+        else
+        {
+            otherUIobj.SetActive(false);
+        }
+
     }
     public void playerStateUpdate()
     {
         //void SetPlayerVisible(bool isVisible, int myHealth, int playerState)
         //sbm.HpBarSlider.value = currHp * 0.01f;
-        suc.HpBarSlider.value = currHp;
+        sbm.HpBarSlider.value = (currHp*0.01f);
         if (currHp <= 0)
         {
             pv.RPC("SetPlayerVisible", PhotonTargets.AllBufferedViaServer, false, currHp, Constants.DEAD);
@@ -91,7 +102,7 @@ public class PlayerState : Photon.MonoBehaviour
             fireScript.enabled = false;
             hpBarObj.SetActive(false);
             optionManager.enabled = false;
-            
+            otherUIobj.SetActive(false);
             foreach (GameObject _obj in checkColliderCs.itemList)
             {
                 _obj.SetActive(isVisible);

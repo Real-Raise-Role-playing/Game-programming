@@ -4,26 +4,37 @@ using UnityEngine;
 
 public class PhotonManager : Photon.MonoBehaviour
 {
-    const string redTeamPlayerPrefabName = "PlayerRed";
-    const string blueTeamPlayerPrefabName = "PlayerBlue";
-    public PhotonPlayer[] players = null;
-    public GameObject[] playerObjs = null;
-    public List<GameObject> playerList = null;
-    
+    public static PhotonManager instance;
+
+    private const string redTeamPlayerPrefabName = "PlayerRed";
+    private const string blueTeamPlayerPrefabName = "PlayerBlue";
+
+    public List<GameObject> playerObjList = new List<GameObject>();
+    private PhotonView pv = null;
+
+    void Awake()
+    {
+        if (instance != null)
+        {
+            DestroyImmediate(gameObject);
+            return;
+        }
+        DontDestroyOnLoad(gameObject);
+        instance = this;
+        pv = GetComponent<PhotonView>();
+    }
+
     void OnJoinedRoom()
     {
-        Debug.Log("룸접속");
+        //Debug.Log("룸접속");
         CreatePlayer();
     }
-    GameObject Player = null;
 
     void CreatePlayer()
     {
-        //GameObject Player = PhotonNetwork.Instantiate(this.playerPrefabName, new Vector3(pos, 154.7f, pos), Quaternion.identity, 0);
         //캐릭 Spwan 관련
 
-        //players = PhotonNetwork.playerList;
-        //GameObject Player = null;
+        GameObject Player = null;
 
         //플레이어 위치------------------------------
         float posX = Random.Range(1350.0f, 1400.0f);
@@ -57,46 +68,56 @@ public class PhotonManager : Photon.MonoBehaviour
         Player.GetComponent<FireScript>().enabled = true;
         Player.GetComponent<CheckCollider>().enabled = true;
         Player.GetComponent<PlayerState>().enabled = true;
-        //Player.GetComponent<NetworkCharacterMove>().enabled = true;
         Player.GetComponentInChildren<ItemDatabase>().enabled = true;
-        //Player.GetComponentInChildren<Inventory>().enabled = true;
-        //Player.GetComponentInChildren<StateUIControl>().enabled = true;
         Player.GetComponentInChildren<CameraControl>().enabled = true;
         Player.GetComponentInChildren<ScopeUiControl>().enabled = true;
-        //Player.GetComponent<NetworkCharacterMove>().enabled = true;
         //Player.GetComponentInChildren<Rader>().enabled = true;
 
-        photonView.RPC("SetConnectPlayerList", PhotonTargets.AllBufferedViaServer, null);
+        //photonView.RPC("SetConnectplayerObjList", PhotonTargets.AllBufferedViaServer, null);
+        pv.RPC("SetConnectplayerObjList", PhotonTargets.AllBufferedViaServer, null);
     }
-    [PunRPC]
-    void SetConnectPlayerList()
-    {
 
-        //모든 Player 프리팹 저장
-        //playerObjs = GameObject.FindGameObjectsWithTag("Player");
-        //foreach (GameObject player in playerObjs)
-        //{
-        //    //Debug.Log(player.GetComponent<PhotonView>().viewID);
-        //    player.name = player.GetComponent<PhotonView>().viewID.ToString();
-        //}
-        playerList.Clear();
-        playerList.AddRange(GameObject.FindGameObjectsWithTag("Player"));
-        foreach (GameObject player in playerList) {
-            //Debug.Log(player.GetComponent<PhotonView>().viewID);
+    [PunRPC]
+    void SetConnectplayerObjList()
+    {
+        playerObjList.Clear();
+        playerObjList.AddRange(GameObject.FindGameObjectsWithTag("Player"));
+        foreach (GameObject player in playerObjList)
+        {
+            //Debug.Log(player.GetComponent<PhotonView>().owner);
             player.name = player.GetComponent<PhotonView>().viewID.ToString();
         }
+        
     }
+
 
     void OnGUI()
     {
         GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString());
         //GUILayout.Label("Red : " + PunTeams.PlayersPerTeam[PunTeams.Team.red].Count + " Blue : " + PunTeams.PlayersPerTeam[PunTeams.Team.blue].Count + " 사람 수 : " + PhotonNetwork.countOfPlayersInRooms );
         if (PhotonNetwork.room == null) return; //Only display this GUI when inside a room
+        GUILayout.BeginArea(new Rect(Screen.width - 300, 0, 200, 1000));
+
+        //foreach (GameObject playerObj in playerObjList)
+        //{
+        //    //GUILayout.Label("플레이어 이름 : " + playerObj.name);
+        //    GUILayout.Label("플레이어 이름 : " + playerObj.GetComponent<PhotonView>().viewID);
+        //}
+        
+        if (WorldTimerManager.instance.isGameStart)
+        {
+            GUILayout.Label("게임 시작!!");
+        }
+        else
+        {
+            GUILayout.Label("게임 대기중!!");
+        }
+        GUILayout.EndArea();
     }
 
     void OnDisconnectedFromPhoton()
     {
-        Debug.Log("연결 끊어짐 ID : " + PhotonNetwork.player.UserId);
+        //Leave Room 클릭 시 오브젝트리스트 삭제 및 포톤네트워크 상 캐릭 삭제
         Debug.LogWarning("OnDisconnectedFromPhoton");
     }
 }

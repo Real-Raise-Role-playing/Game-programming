@@ -13,10 +13,6 @@ public class Inventory : MonoBehaviour
     public Transform draggingItem;
     public Slot enteredSlot;
     private PhotonView pv = null;
-    //void Awake()
-    //{
-    //    instance = this;
-    //}
 
     // Use this for initialization
     void Start()
@@ -31,8 +27,6 @@ public class Inventory : MonoBehaviour
             {
                 ItemImageChange(item);
             }
-            //아이템 데이터베이스 시작 갯수 Add
-            //AddItem(Constants.startItemCount);
         }
         this.gameObject.SetActive(false);
     }
@@ -60,9 +54,6 @@ public class Inventory : MonoBehaviour
                 newSlot.position = slotRect.transform.position;
                 slotScripts.Add(newSlot.GetComponent<Slot>());
                 newSlot.GetComponent<Slot>().number = y * xCount + x;
-                //Debug.Log(newSlot.GetComponent<Slot>().item.itemValue);
-                //newSlot.GetComponent<Slot>().item.itemValue = 0;
-                //newSlot.transform.GetChild(0).gameObject.SetActive(false);
             }
         }
         slot.gameObject.SetActive(false);
@@ -72,44 +63,20 @@ public class Inventory : MonoBehaviour
     {
         if (_slot.item.itemValue == 1)
         {
-            Debug.Log(" if (_slot.item.itemValue == 1) 실행");
             _slot.transform.GetChild(0).gameObject.SetActive(true);
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = _slot.item.itemImage;
         }
         else if (_slot.item.itemValue == -1)
         {
-            Debug.Log("else if (_slot.item.itemValue == -1) 실행");
            _slot.transform.GetChild(0).gameObject.SetActive(true);
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("ItemImages/f");
         }
         else
         {
-            Debug.Log("else 실행");
             _slot.transform.GetChild(0).gameObject.SetActive(false);
-            //_slot.transform.GetChild(0).GetComponent<Image>().sprite = null;
             _slot.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("ItemImages/f");
         }
     }
-
-    //public void AddItem(int number)
-    //{
-    //    for (int i = 0; i < number; i++)
-    //    {
-    //        if (slotScripts[i].item.itemValue == 0)
-    //        {
-    //            slotScripts[i].item = idb.items[i];
-    //            ItemImageChange(slotScripts[i]);
-    //        }
-    //    }
-
-    //    for (int i = number; i < slotScripts.Count; i++)
-    //    {
-    //        if (slotScripts[i].item.itemValue == 0)
-    //        {
-    //            slotScripts[i].transform.GetChild(0).gameObject.SetActive(false);
-    //        }
-    //    }
-    //}
 
     public void AddItem()
     {
@@ -135,16 +102,4 @@ public class Inventory : MonoBehaviour
             }
         }
     }
-
-    //---삭제 대기
-    //public void slotSorting(int changeCount, int currentCount)
-    //{
-    //    for (int i = changeCount; i < currentCount; i++)
-    //    {
-    //        //Slot tempSlot = slotScripts[i];
-    //        slotScripts[i] = slotScripts[i + 1];
-    //    }
-    //    slotScripts[currentCount].item = new ItemManager("f", -1, "null", ItemType.NONE, currentCount, Resources.Load<Sprite>("ItemImages/f"));
-    //    //slotScripts[currentCount].transform.GetChild(0);
-    //}
 }

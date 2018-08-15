@@ -16,7 +16,6 @@ public class ItemDatabase : MonoBehaviour
 
     [HideInInspector]
     public int itemCount = 0;
-    //public int itemCount = Constants.startItemCount;
     public ItemManager selectItem = null;
     Inventory iv = null;
 

@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class StateUIControl : Photon.MonoBehaviour
 {
+    public Image beShotImg;
+    public Color beShotImgColor;
+    public Color beShotImgDisableColor;
+
     [HideInInspector]
     public GameObject HpBarObj;
     [HideInInspector]
@@ -28,6 +32,10 @@ public class StateUIControl : Photon.MonoBehaviour
         pv = transform.root.GetComponent<PhotonView>();
         if (pv.isMine)
         {
+            beShotImgColor = beShotImg.color;
+            beShotImgDisableColor = new Color(255.0f, 255.0f, 255.0f, 0.0f);
+            beShotImg.color = beShotImgDisableColor;
+
             HpBarObj = Instantiate((GameObject)Resources.Load("SliderHP"), transform.position, transform.rotation) as GameObject;
             HangerBarObj = Instantiate((GameObject)Resources.Load("SliderHunger"), transform.position, transform.rotation) as GameObject;
             HpBarObj.transform.SetParent(transform);
@@ -60,22 +68,32 @@ public class StateUIControl : Photon.MonoBehaviour
         }
         else
         {
+            beShotImg.transform.gameObject.SetActive(false);
             this.enabled = false;
         }
     }
+
     void Update()
     {
-        if (WorldTimerManager.instance.worldTimer < 5)
-        {
-            HangerBarSlider.value -= 0.05f;
-        }
-        else if (WorldTimerManager.instance.worldTimer < 20)
-        {
-            HangerBarSlider.value -= 0.1f;
-        }
-        else if (WorldTimerManager.instance.worldTimer < 40)
-        {
-            HangerBarSlider.value -= 0.2f;
-        }
+        //if (Constants.Stage_1 <= WorldTimerManager.instance.worldTimer && WorldTimerManager.instance.worldTimer < Constants.Stage_2)
+        //{
+        //    HangerBarSlider.value -= 0.005f;
+        //}
+        //else if (Constants.Stage_2 <= WorldTimerManager.instance.worldTimer && WorldTimerManager.instance.worldTimer < Constants.Stage_3)
+        //{
+        //    HangerBarSlider.value -= 0.01f;
+        //}
+        //else if (Constants.Stage_3 <= WorldTimerManager.instance.worldTimer)
+        //{
+        //    HangerBarSlider.value -= 0.02f;
+        //}
+        HangerBarSlider.value -= 0.5f;
     }
+    
+    public IEnumerator delayTime()
+    {
+        yield return new WaitForSeconds(2);
+        beShotImg.color = beShotImgDisableColor;
+    }
+
 }

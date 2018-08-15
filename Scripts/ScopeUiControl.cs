@@ -23,6 +23,7 @@ public class ScopeUiControl : Photon.MonoBehaviour
         else
         {
             this.enabled = false;
+            crossHairObj.SetActive(false);
         }
     }
 }

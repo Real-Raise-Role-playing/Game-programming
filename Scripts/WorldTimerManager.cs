@@ -8,12 +8,12 @@ public class WorldTimerManager : MonoBehaviour
 {
 
     public static WorldTimerManager instance;
-    private PhotonView pv = null;
     public int worldTimer;
     private int millisecondsElapsed;
-
+    public bool isGameStart;
     DateTime now;
     DateTime previousTime;
+
     // Use this for initialization
     void Awake()
     {
@@ -24,8 +24,8 @@ public class WorldTimerManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
         instance = this;
-        pv = GetComponent<PhotonView>();
-        previousTime = DateTime.Now;
+        //previousTime = DateTime.Now;
+        isGameStart = false;
     }
 
     // Update is called once per frame
@@ -40,15 +40,37 @@ public class WorldTimerManager : MonoBehaviour
     {
         millisecondsElapsed += msec;
         worldTimer = (int)(millisecondsElapsed / 1000);
+
+        //Time.deltaTime을 이용하여 동기화 할때 그러나 값이 일정하지 않아 잠시 정지
+        //worldTimer = (int)(millisecondsElapsed * (Time.deltaTime * 0.05));
     }
 
-    private void Update()
+    void Update()
     {
-        var now = DateTime.Now;
-        var elapsed = now - previousTime;
-        previousTime = now;
-        var msec = (int)elapsed.TotalMilliseconds;
-        updateFrame(msec);
-        Debug.Log(worldTimer);
+        //게임 시작시 필요한 처리
+        if (PhotonManager.instance.playerObjList.Count >= 1 && !isGameStart)
+        {
+            isGameStart = true;
+            previousTime = DateTime.Now;
+            Slime.instance.GetComponent<Slime>().enabled = true;
+        }
+        if (isGameStart)
+        {
+            var now = DateTime.Now;
+            var elapsed = now - previousTime;
+            previousTime = now;
+            var msec = (int)elapsed.TotalMilliseconds;
+            updateFrame(msec);
+        }
+        else
+        {
+            return;
+        }
+
+        //var now = DateTime.Now;
+        //var elapsed = now - previousTime;
+        //previousTime = now;
+        //var msec = (int)elapsed.TotalMilliseconds;
+        //updateFrame(msec);
     }
 }
