@@ -14,13 +14,12 @@ public class CheckCollider : Photon.MonoBehaviour
         //CANTEEN
     }
     GameObject menuPos;
-
     public GameObject helmetsState = null;
     public GameObject canteen = null;
     public GameObject blanket = null;
     public GameObject shovel = null;
     public GameObject grenade = null;
-    public List<GameObject> itemList = null;
+    public List<GameObject> itemList = new List<GameObject>();
     public bool pickUpAnimCheck = false;
 
     string dropItemName = string.Empty;
@@ -28,33 +27,35 @@ public class CheckCollider : Photon.MonoBehaviour
     private ItemDatabase idb = null;
     private Inventory iv = null;
     //아이템 줍기 가능 상태 여부 Flag
-    public Transform WeaponTr;
     public bool isGetItemflag = false;
+    public Transform WeaponTr;
     private GameObject itemObj = null;
     private string itemName = null;
     private PhotonView pv = null;
     private FireScript fs = null;
     private OptionManager om = null;
     private PlayerState ps = null;
-    //private StateUIControl suc = null;
     private StateBarManager sbm = null;
+
     void Awake()
     {
-        ps = GetComponent<PlayerState>();
-        om = GetComponent<OptionManager>();
-        idb = GetComponentInChildren<ItemDatabase>();
-        iv = GetComponentInChildren<Inventory>();
         pv = GetComponent<PhotonView>();
-        fs = GetComponent<FireScript>();
-        menuPos = GameObject.Find("MenuPos");
-        //suc = GetComponentInChildren<StateUIControl>();
-        sbm = GetComponentInChildren<StateBarManager>();
-
+        if (pv.isMine)
+        {
+            ps = GetComponent<PlayerState>();
+            om = GetComponent<OptionManager>();
+            idb = GetComponentInChildren<ItemDatabase>();
+            iv = GetComponentInChildren<Inventory>();
+            fs = GetComponent<FireScript>();
+            menuPos = GameObject.Find("MenuPos");
+            sbm = GetComponentInChildren<StateBarManager>();
+        }
+        pickUpAnimCheck = false;
     }
 
     void Update()
     {
-        if (!pv.isMine) { return; }
+        if (!pv.isMine || ps.playerStateNum == Constants.DEAD) { return; }
         if (Input.GetKeyDown(KeyCode.F) && isGetItemflag && itemObj != null)
         {
             //2개이상 템을 먹지 못하도록 제한
@@ -355,19 +356,15 @@ public class CheckCollider : Photon.MonoBehaviour
             Camera.main.GetComponent<CameraControl>().enabled = false;
             Camera.main.farClipPlane = Camera.main.nearClipPlane + 0.1f;
             Camera.main.transform.position = Vector3.zero;
-            Camera.main.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+            Camera.main.transform.rotation = Quaternion.identity;
             int veiwId = transform.GetComponent<PhotonView>().viewID;
-            
-            foreach (GameObject playerObj in PhotonManager.instance.playerObjList)
-            {
-                if (playerObj.GetComponent<PhotonView>().viewID == transform.GetComponent<PhotonView>().viewID)
-                {
-                    Debug.Log("플레이어 삭제 실행 : "+ playerObj.GetComponent<PhotonView>().viewID);
-                    PhotonManager.instance.playerObjList.Remove(playerObj);
-                    //playerObjList.RemoveAt(playerObjList.IndexOf(playerObj));
-                    break;
-                }
-            }
+            ps.gameOverUIobj.SetActive(false);
+            PhotonManager.instance.LeavePlayer(veiwId);
+
+            //슬라임에게 플레이어 정보를 다시 전송 해야함.
+            //Slime.instance.enabled = false;
+            //pv.RPC("LeavePlayer", PhotonTargets.AllBufferedViaServer, veiwId);
+            //Slime.instance.enabled = true;
 
             PhotonNetwork.Destroy(PhotonView.Find(veiwId).gameObject);
             PhotonNetwork.LeaveRoom();

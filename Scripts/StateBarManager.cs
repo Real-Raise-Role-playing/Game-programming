@@ -64,9 +64,9 @@ public class StateBarManager : MonoBehaviour
         HangerBarSlider.value -= 0.005f;
     }
 
-    public IEnumerator delayTime()
+    public IEnumerator delayTime(float sec)
     {
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(sec);
         beShotImg.color = beShotImgDisableColor;
     }
 }

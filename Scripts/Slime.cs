@@ -29,14 +29,19 @@ public class Slime : MonoBehaviour
 
     private void OnEnable()
     {
-        foreach (GameObject player in PhotonManager.instance.playerObjList)
-        {
-            playerTrs.Add(player.transform);
-        }
+        //foreach (GameObject player in PhotonManager.instance.playerObjList)
+        //{
+        //    playerTrs.Add(player.transform);
+        //}
 
         agent = GetComponent<NavMeshAgent>();
         // 컴포넌트 찾기
         origPos = new Vector3(1527.3f, 0, 2247.0f);
+    }
+
+    private void OnDisable()
+    {
+        playerTrs.Clear();
     }
 
     // Update is called once per frame
@@ -46,17 +51,17 @@ public class Slime : MonoBehaviour
 
         Debug.DrawRay(transform.position, transform.forward * 15, Color.green);
 
-        for (int i = 0; i < playerTrs.Count; i++)
+        foreach (GameObject player in PhotonManager.instance.playerObjList)
         {
             if (Attecking)
             {
                 break;
             }
-            dist = Vector3.Distance(transform.position, playerTrs[i].position); //사이의 거리를 계산.
+            dist = Vector3.Distance(transform.position, player.transform.position); //사이의 거리를 계산.
             if (dist < 30)
             {
                 Attecking = true;
-                targetNum = i;
+                targetNum = PhotonManager.instance.playerObjList.IndexOf(player);
                 break;
             }
         }
@@ -64,11 +69,11 @@ public class Slime : MonoBehaviour
         if (Attecking)
         {
             dist = Vector3.Distance(transform.position, playerTrs[targetNum].position);
-            if (dist < 30 )
+            if (dist < 30)
             {
                 agent.stoppingDistance = 1; // 타겟과 얼마가 가까이 붙을지
                 agent.destination = playerTrs[targetNum].position; // 타겟을 향해 이동
-                                                           // 길잡이가 타겟을 향해 이동한다.
+                                                                   // 길잡이가 타겟을 향해 이동한다.
             }
             else
             {
@@ -78,6 +83,42 @@ public class Slime : MonoBehaviour
                 Attecking = false;
             }
         }
+
+        //------------------
+        //for (int i = 0; i < playerTrs.Count; i++)
+        //{
+        //    if (Attecking)
+        //    {
+        //        break;
+        //    }
+        //    dist = Vector3.Distance(transform.position, playerTrs[i].position); //사이의 거리를 계산.
+        //    if (dist < 30)
+        //    {
+        //        Attecking = true;
+        //        targetNum = i;
+        //        break;
+        //    }
+        //}
+
+        //if (Attecking)
+        //{
+        //    dist = Vector3.Distance(transform.position, playerTrs[targetNum].position);
+        //    if (dist < 30 )
+        //    {
+        //        agent.stoppingDistance = 1; // 타겟과 얼마가 가까이 붙을지
+        //        agent.destination = playerTrs[targetNum].position; // 타겟을 향해 이동
+        //                                                   // 길잡이가 타겟을 향해 이동한다.
+        //    }
+        //    else
+        //    {
+        //        agent.stoppingDistance = 0;
+        //        agent.destination = origPos; // 원래 자리로 이동
+        //        targetNum = 0;
+        //        Attecking = false;
+        //    }
+        //}
+        //-------------------------
+
 
         //float dist = Vector3.Distance(transform.position, player.position); //사이의 거리를 계산.
         //if (dist < 30)

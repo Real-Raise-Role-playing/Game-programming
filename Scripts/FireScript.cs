@@ -26,8 +26,8 @@ public class FireScript : Photon.MonoBehaviour
 
     //탄 관련
     //StateUIControl suc = null;
-    StateBarManager sbm = null;
-
+    private StateBarManager sbm = null;
+    private PlayerState ps = null;
     //현재 탄창에 있는 총알 수
     public int currentBulletCount;
     //가방에 가지고 있는 총알 수
@@ -48,6 +48,7 @@ public class FireScript : Photon.MonoBehaviour
         //suc = GetComponentInChildren<StateUIControl>();
         sbm = GetComponentInChildren<StateBarManager>();
         kar98 = Resources.Load<AudioClip>("Sounds\\Kar98");
+        ps = GetComponent<PlayerState>();
         //pm = transform.root.GetComponentInChildren<ParticleManager>();
     }
 
@@ -71,10 +72,8 @@ public class FireScript : Photon.MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!pv.isMine)
-        {
-            return;
-        }
+        if (!pv.isMine || ps.playerStateNum == Constants.DEAD) { return; }
+
         UpadateBulletCount();
         Fire();
         /*
@@ -180,7 +179,7 @@ public class FireScript : Photon.MonoBehaviour
     IEnumerator reloadGun()
     {
         Debug.Log("재장전 시작");
-        yield return new WaitForSeconds(2.8f);
+        yield return new WaitForSeconds(2.5f);
         if (havingBulletCount >= Constants.m16MaxBulletCount)
         {
             int addBulletCount = Constants.m16MaxBulletCount - currentBulletCount;

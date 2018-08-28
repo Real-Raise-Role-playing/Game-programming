@@ -48,11 +48,16 @@ public class WorldTimerManager : MonoBehaviour
     void Update()
     {
         //게임 시작시 필요한 처리
-        if (PhotonManager.instance.playerObjList.Count >= 1 && !isGameStart)
+        if (PhotonManager.instance.playerObjList.Count >= 2 && !isGameStart)
         {
             isGameStart = true;
             previousTime = DateTime.Now;
-            Slime.instance.GetComponent<Slime>().enabled = true;
+            //Slime.instance.GetComponent<Slime>().enabled = true;
+        }
+        else if (PhotonManager.instance.playerObjList.Count < 1 && isGameStart)
+        {
+            //Slime.instance.GetComponent<Slime>().enabled = false;
+            isGameStart = false;
         }
         if (isGameStart)
         {

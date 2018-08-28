@@ -26,65 +26,82 @@ public class CharacterMove : Photon.MonoBehaviour
     private float jumpCount = 0.0f;
     Vector3 moveDirection = Vector3.zero;
     //
-    public PhotonView pv = null;
+    private float nextAttack = 0.0f;
+    private PhotonView pv = null;
     public Transform camPivot;
 
     //bool 값을 통해 run aim을 구별
-    [HideInInspector]
     //이동 변수
+    [HideInInspector]
     public float x, z;
+    float rotationX;
+    float rotationY;
 
+    [HideInInspector]
     public bool run = false;
+    [HideInInspector]
     public bool aim = false;
+    [HideInInspector]
     public bool sit = false;
+    [HideInInspector]
     public bool isWalk = false;
+    [HideInInspector]
     public bool jump = false;
+    [HideInInspector]
     public bool tilt_L = false;
+    [HideInInspector]
     public bool tilt_R = false;
+    [HideInInspector]
     public bool attack = false;
+    [HideInInspector]
     public bool pickUp = false;
+    [HideInInspector]
+    public bool death = false;
+    [HideInInspector]
+    public bool melee_attack = false;
 
+    public CapsuleCollider knifeCollider;
     //public bool crawl = false;
     void Awake()
     {
-        //beShot = Instantiate(Resources.Load<Sprite>("Particles/blood_0"), Vector3.zero, Quaternion.identity) as Sprite;
-        //this.enabled = GetComponent<PhotonView>().isMine;
-        ps = GetComponent<PlayerState>();
-        //suc = GetComponentInChildren<StateUIControl>();
-        sbm = GetComponentInChildren<StateBarManager>();
-        //tr = GetComponent<Transform>();
-        rb = GetComponent<Rigidbody>();
+        knifeCollider.gameObject.SetActive(false);
         pv = GetComponent<PhotonView>();
-        om = GetComponent<OptionManager>();
-        fs = GetComponent<FireScript>();
-        cc = GetComponent<CheckCollider>();
         if (pv.isMine)
         {
             //rader.playerPos = tr;
+            ps = GetComponent<PlayerState>();
+            sbm = GetComponentInChildren<StateBarManager>();
+            rb = GetComponent<Rigidbody>();
+            om = GetComponent<OptionManager>();
+            fs = GetComponent<FireScript>();
+            cc = GetComponent<CheckCollider>();
             Camera.main.GetComponent<CameraControl>().Player = this.gameObject;
             Camera.main.GetComponent<CameraControl>().enabled = true;
         }
         else
         {
-            rb.isKinematic = true;
+            //anim = null;
+            scopeOverlay = null;
+            cameraTransform = null;
+            camPivot = null;
+            //rb.isKinematic = true;
             //this.enabled = false;
         }
     }
 
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
-        cameraTransform = Camera.main.GetComponent<Transform>();
-        normalFOV = Camera.main.fieldOfView;
+        if (pv.isMine)
+        {
+            characterController = GetComponent<CharacterController>();
+            cameraTransform = Camera.main.GetComponent<Transform>();
+            normalFOV = Camera.main.fieldOfView;
+        }
     }
 
     void FixedUpdate()
     {
-        //if (ps.playerStateNum == Constants.DEAD)
-        //{
-        //    return;
-        //}
-        if (!pv.isMine)
+        if (!pv.isMine || ps.playerStateNum == Constants.DEAD)
         {
             return;
         }
@@ -95,11 +112,19 @@ public class CharacterMove : Photon.MonoBehaviour
             {
                 x = Input.GetAxis("Horizontal");
                 z = Input.GetAxis("Vertical");
-                //Camera.main.transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
-                //rb.transform.eulerAngles = new Vector3(0,Camera.main.transform.rotation.eulerAngles);
+                //float mouseMoveValueX = Input.GetAxis("Mouse X");
+                //float mouseMoveValueY = Input.GetAxis("Mouse Y");
+                //rotationY += mouseMoveValueX * Constants.defaultSensitivity * Time.deltaTime;
+                //rotationX += mouseMoveValueY * Constants.defaultSensitivity * Time.deltaTime;
+                //rotationX %= 360;
+                //rotationY %= 360;
+                //rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
+                //transform.eulerAngles = new Vector3(-rotationX, rotationY, 0.0f);
+                //캐릭터 회전 관련 마우스 X축 (좌 <-> 우)
+                transform.Rotate(Vector3.up * Time.deltaTime * Constants.defaultSensitivity * Input.GetAxis("Mouse X"));
+
                 moveDirection = new Vector3(x, 0, z);
                 moveDirection = cameraTransform.TransformDirection(moveDirection);
-
                 moveDirection *= moveSpeed;
             }
             else
@@ -128,14 +153,14 @@ public class CharacterMove : Photon.MonoBehaviour
     [PunRPC]
     void OtherAnimPlay(string animName, int layer, float time)
     {
-        if (om.InventoryOn)
-        {
-            return;
-        }
+        //if (om.InventoryOn)
+        //{
+        //    return;
+        //}
         anim.Play(animName, layer, time);
     }
 
-    void AnimBool(string animName, bool check)
+    public void AnimBool(string animName, bool check)
     {
         //인벤토리가 열리면 IDLE상태로 해주기위함.
         if (om.InventoryOn)
@@ -143,11 +168,11 @@ public class CharacterMove : Photon.MonoBehaviour
             check = false;
         }
         anim.SetBool(animName, check);
-        pv.RPC("OtherAnimPlay", PhotonTargets.Others, animName, check);
+        pv.RPC("OtherAnimBool", PhotonTargets.Others, animName, check);
     }
 
     [PunRPC]
-    void OtherAnimPlay(string animName, bool check)
+    void OtherAnimBool(string animName, bool check)
     {
         anim.SetBool(animName, check);
     }
@@ -195,20 +220,48 @@ public class CharacterMove : Photon.MonoBehaviour
             }
             //-----------------------------------------
             //근접 공격
-            if (Input.GetKeyDown(KeyCode.V))
+            if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false)
             {
-                AnimPlay("MELEE_ATTACK", -1, 0f);
+                //StartCoroutine(delayAnimPlay(1.0f, "MELEE_ATTACK"));
+                //if (Time.time > nextAttack)
+                //{
+                //    nextAttack = Time.time + Constants.meleeAttackSpeed;
+                //    AnimPlay("MELEE_ATTACK", -1, 1.0f);
+                //}
+                //Invoke("meleeAttackDelay", Constants.meleeAttackSpeed-1.5f);
+                Debug.Log("if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false) ");
+                AnimPlay("MELEE_ATTACK", -1, 1.0f);
+                Invoke("meleeAttackDelay1", Constants.meleeAttackSpeed - 1.8f);
+                //StartCoroutine(meleeAttackDelay(true, 0.5f));
             }
+            else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true)
+            {
+                //StartCoroutine(meleeAttackDelay(false, 2.0f));
+                Debug.Log("else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true) 실행");
+                Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.0f);
+            }
+            else if (knifeCollider.gameObject.GetActive() == true)
+            {
+                Debug.Log("else if (knifeCollider.gameObject.GetActive() == true) 실행");
+                Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.0f);
+                //meleeAttackDelay2();
+            }
+            //else if (Input.GetKeyUp(KeyCode.V))
+            //{
+            //    //melee_attack = false;
+            //    meleeAttackDelay(false);
+            //}
 
             //-----------------------------------------                                                                 
             //에임 공격
             if (!aim && Input.GetMouseButtonDown(1))
             {
                 Camera.main.fieldOfView = scopedFOV;
-                AnimPlay("AIM", -1, 0f);
+                //AnimPlay("AIM", -1, 0f);
                 AnimBool("aim", true);
                 scopeOverlay.SetActive(true);
-                Camera.main.cullingMask &= ~(1 << LayerMask.NameToLayer("Player"));
+                //Camera.main.cullingMask &= ~(1 << LayerMask.NameToLayer("Player"));
+                ps.renderers[1].enabled = false;
                 aim = true;
                 //aim = fs.shotState;
                 //--------------------------
@@ -220,7 +273,8 @@ public class CharacterMove : Photon.MonoBehaviour
                 AnimBool("aim", false);
                 scopeOverlay.SetActive(false);
                 Camera.main.fieldOfView = normalFOV;
-                Camera.main.cullingMask |= 1 << LayerMask.NameToLayer("Player");
+                //Camera.main.cullingMask |= 1 << LayerMask.NameToLayer("Player");
+                ps.renderers[1].enabled = true;
                 aim = false;
                 //aim = fs.shotState;
                 //WeaponsCamera.SetActive(false);
@@ -247,20 +301,26 @@ public class CharacterMove : Photon.MonoBehaviour
 
             //-----------------------------------------
             // 앉기
-            if (Input.GetKeyDown(KeyCode.LeftControl))
+            if (Input.GetKeyDown(KeyCode.C))
             {
-                AnimPlay("sit_down", -1, 0f);
-                moveSpeed = Constants.SitMoveSpeed;
-                sit = true;
+                sit = !sit;
                 AnimBool("sit", sit);
+                if (sit)
+                {
+                    moveSpeed = Constants.SitMoveSpeed;
+                }
+                else
+                {
+                    moveSpeed = Constants.DefaultMoveSpeed;
+                }
             }
-            else if (Input.GetKeyUp(KeyCode.LeftControl))
-            {
-                AnimPlay("sit_up", -1, 0f);
-                moveSpeed = Constants.DefaultMoveSpeed;
-                sit = false;
-                AnimBool("sit", sit);
-            }
+            //else if (Input.GetKeyUp(KeyCode.C) && sit)
+            //{
+            //    //AnimPlay("sit_up", -1, 0f);
+            //    moveSpeed = Constants.DefaultMoveSpeed;
+            //    sit = false;
+            //    AnimBool("sit", false);
+            //}
             //재장전
             if (!aim && fs.reloadAnimCheck)
             {
@@ -293,7 +353,6 @@ public class CharacterMove : Photon.MonoBehaviour
                 tilt_R = false;
                 AnimBool("tilt_R", tilt_R);
             }
-
             //-----------------------------------------
         }
     }
@@ -304,26 +363,28 @@ public class CharacterMove : Photon.MonoBehaviour
         //-----------------------------------------
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            moveSpeed += Constants.AddMoveSpeed;
-            //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
-            if (moveSpeed >= Constants.MaxMoveSpeed)
+            if (x != 0 || z != 0)
             {
-                moveSpeed = Constants.MaxMoveSpeed;
-            }
-            run = true;
-            if (sbm.HangerBarSlider.value <= 0.001f)
-            {
-                sbm.beShotImg.color = sbm.beShotImgColor;
-                //suc.beShotImg.color = new Color(suc.beShotImg.color.r, suc.beShotImg.color.g, suc.beShotImg.color.b, suc.beShotImg.color.a - 10);
-                ps.currHp -= 1;
-                ps.playerStateUpdate();
+                moveSpeed += Constants.AddMoveSpeed;
+                //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
+                if (moveSpeed >= Constants.MaxMoveSpeed)
+                {
+                    moveSpeed = Constants.MaxMoveSpeed;
+                }
+                run = true;
+                if (sbm.HangerBarSlider.value <= 0.001f)
+                {
+                    sbm.beShotImg.color = sbm.beShotImgColor;
+                    ps.currHp -= 1;
+                    ps.playerStateUpdate();
+                }
             }
         }
         else
         {
             if (run)
             {
-                StartCoroutine(sbm.delayTime());
+                StartCoroutine(sbm.delayTime(2.0f));
             }
             //달리기가 빨라지다가 최대속도를 넘을 시 최대 속도를 유지
             moveSpeed -= Constants.AddMoveSpeed;
@@ -335,4 +396,32 @@ public class CharacterMove : Photon.MonoBehaviour
             run = false;
         }
     }
+
+    IEnumerator meleeAttackDelay(bool active, float time) {
+        yield return new WaitForSeconds(time);
+        pv.RPC("MelleBool", PhotonTargets.All, active);
+    }
+
+    void meleeAttackDelay1()
+    {
+        pv.RPC("MelleBool", PhotonTargets.All, true);
+    }
+
+    void meleeAttackDelay2()
+    {
+        pv.RPC("MelleBool", PhotonTargets.All, false);
+    }
+
+    [PunRPC]
+    void MelleBool(bool _melee_attack)
+    {
+        knifeCollider.gameObject.SetActive(_melee_attack);
+        Debug.Log(knifeCollider.gameObject.GetActive());
+    }
+
+    //IEnumerator delayAnimPlay(float sec,string animName)
+    //{
+    //    yield return new WaitForSeconds(sec);
+    //    AnimPlay("MELEE_ATTACK", -1, 0f);
+    //}
 }

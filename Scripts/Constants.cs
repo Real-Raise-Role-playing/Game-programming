@@ -20,7 +20,8 @@ public static class Constants
     //FireScript 관련 상수
     public const float forwardPower = 300.0f;
     public const float upPower = 5.0f;
-    public const float m16FireSpeed = 0.2f;
+    public const float m16FireSpeed = 0.2f; 
+    public const float meleeAttackSpeed = 2.0f;
     public const float kar98FireSpeed = 1.0f;
     public const int   m16MaxBulletCount = 30;
     public const int   m16InitBulletCount = 30;

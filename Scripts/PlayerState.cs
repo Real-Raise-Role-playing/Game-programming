@@ -4,40 +4,34 @@ using UnityEngine;
 public class PlayerState : Photon.MonoBehaviour
 {
     public int playerStateNum = 0;
-    private FireScript fireScript = null;
     private PhotonView pv = null;
     public GameObject hpBarObj = null;
     public GameObject otherUIobj = null;
-
+    public GameObject gameOverUIobj = null;
+    public GameObject deathCamPivot = null;
+    public bool isGrounded = false;
+    //bool isDead = false;
     //플레이어 상태
     //public bool isDead = false;
     //public bool groggy = false;
-    public string check = "비 접근";
 
-    //플레이어 속성
-    public bool isGrounded = false;
-    //[SerializeField]
     [HideInInspector]
     public int currHp = 0;
 
     //플레이어 비활성화
-    public  Collider[]              colliders = null;
-    public  MeshRenderer[]          renderers = null;
-    public  SkinnedMeshRenderer[]   skinRenderers = null;
-    public  Canvas[]                canvas = null;
-    public  CheckCollider           checkColliderCs = null;
-    public  CameraControl           camCon = null;
-    public  CharacterMove           charMove = null;
-    public  OptionManager           optionManager = null;
-    //private StateBarManager         sbm = null;
-    //private StateUIControl          suc = null;
+    private Collider[] colliders = null;
+    public MeshRenderer[] renderers = null;
+    private SkinnedMeshRenderer[] skinRenderers = null;
+    private Canvas[] canvas = null;
+    private CheckCollider checkColliderCs = null;
+    private CameraControl camCon = null;
+    private CharacterMove charMove = null;
+    private OptionManager optionManager = null;
     private StateBarManager sbm = null;
+    private FireScript fireScript = null;
     void Awake()
     {
         pv = GetComponent<PhotonView>();
-        if (pv.isMine)
-        {
-        //player들이 동적할당이 되기전에 가져오는 것인가..?
         camCon = Camera.main.GetComponent<CameraControl>();
         optionManager = GetComponent<OptionManager>();
         charMove = GetComponent<CharacterMove>();
@@ -48,36 +42,42 @@ public class PlayerState : Photon.MonoBehaviour
         colliders = GetComponentsInChildren<Collider>();
         canvas = GetComponentsInChildren<Canvas>();
         checkColliderCs = GetComponent<CheckCollider>();
-        //sbm = GetComponentInChildren<StateBarManager>();
-        //suc = GetComponentInChildren<StateUIControl>();
-        //suc = GetComponentInChildren<StateUIControl>();
         sbm = GetComponentInChildren<StateBarManager>();
-        }
-        else
+        if (!pv.isMine)
         {
             otherUIobj.SetActive(false);
+            gameOverUIobj.SetActive(false);
+            deathCamPivot.SetActive(false);
         }
-
     }
+
     public void playerStateUpdate()
     {
-        //void SetPlayerVisible(bool isVisible, int myHealth, int playerState)
-        //sbm.HpBarSlider.value = currHp * 0.01f;
-        sbm.HpBarSlider.value = (currHp*0.01f);
-        if (currHp <= 0)
-        {
-            pv.RPC("SetPlayerVisible", PhotonTargets.AllBufferedViaServer, false, currHp, Constants.DEAD);
-        }
-        //나의 팀원이 생존해있을때 기절 처리
-        //else if (true)
+        //if (!pv.isMine)
         //{
-
+        //    return;
         //}
-        else
+        //else
+        //{
+        sbm.HpBarSlider.value = (currHp * 0.01f);
+        if (currHp <= 0 && playerStateNum != Constants.DEAD)
+        {
+            //순서 중요
+            hpBarObj.SetActive(false);
+            otherUIobj.SetActive(false);
+            playerStateNum = Constants.DEAD;
+            optionManager.InventoryObj.SetActive(false);
+            Camera.main.transform.position = new Vector3(deathCamPivot.transform.position.x, deathCamPivot.transform.position.y, deathCamPivot.transform.position.z);
+            Camera.main.transform.eulerAngles = new Vector3(deathCamPivot.transform.eulerAngles.x, deathCamPivot.transform.eulerAngles.y, deathCamPivot.transform.eulerAngles.z);
+            charMove.AnimBool("death", true);
+            Invoke("DelayGameOverTime", 5.0f);
+        }
+        else if (currHp > 0 && playerStateNum != Constants.DEAD)
         {
             //플레이어 상태가 Constants.NONE 이면 Visble 작업 처리 하지 않음.
             pv.RPC("SetPlayerVisible", PhotonTargets.AllBufferedViaServer, true, currHp, Constants.NONE);
         }
+        //}
     }
 
     [PunRPC]
@@ -94,19 +94,6 @@ public class PlayerState : Photon.MonoBehaviour
         }
         else if (playerState == Constants.DEAD)
         {
-            if (pv.isMine)
-            {
-                camCon.enabled = false;
-            }
-            charMove.enabled = false;
-            fireScript.enabled = false;
-            hpBarObj.SetActive(false);
-            optionManager.enabled = false;
-            otherUIobj.SetActive(false);
-            foreach (GameObject _obj in checkColliderCs.itemList)
-            {
-                _obj.SetActive(isVisible);
-            }
             foreach (Canvas _canvas in canvas)
             {
                 _canvas.enabled = isVisible;
@@ -134,4 +121,11 @@ public class PlayerState : Photon.MonoBehaviour
     {
         Resources.UnloadUnusedAssets();
     }
+
+    void DelayGameOverTime()
+    {
+        pv.RPC("SetPlayerVisible", PhotonTargets.AllBufferedViaServer, false, currHp, Constants.DEAD);
+        gameOverUIobj.SetActive(true);
+    }
+
 }
