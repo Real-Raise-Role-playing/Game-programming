@@ -162,8 +162,8 @@ public class CharacterMove : Photon.MonoBehaviour
 
     public void AnimBool(string animName, bool check)
     {
-        //인벤토리가 열리면 IDLE상태로 해주기위함.
-        if (om.InventoryOn)
+        //인벤토리가 열리면 IDLE상태로 해주기위함. 인벤이 열렸어도 죽음처리는 해야하기에
+        if (om.InventoryOn && animName != "death")
         {
             check = false;
         }

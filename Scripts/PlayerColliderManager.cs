@@ -37,7 +37,6 @@ public class PlayerColliderManager : Photon.MonoBehaviour
         }
         else if (collisionLayer == LayerMask.NameToLayer("Bullet"))
         {
-            Debug.Log("쏜놈 : " + other.gameObject.GetComponent<BulletCheckCollider>().masterViewNum);
             sbm.beShotImg.color = sbm.beShotImgColor;
             //suc.beShotImg.color = suc.beShotImgColor;
             Destroy(other.gameObject);
@@ -45,7 +44,6 @@ public class PlayerColliderManager : Photon.MonoBehaviour
             {
                 if (ps.currHp > 0)
                 {
-                    Debug.Log("머리 맞음");
                     ps.currHp = 0;
                 }
             }
@@ -53,7 +51,6 @@ public class PlayerColliderManager : Photon.MonoBehaviour
             {
                 if (ps.currHp > 0)
                 {
-                    Debug.Log("종아리 맞음");
                     ps.currHp -= 10;
                 }
             }
@@ -61,7 +58,6 @@ public class PlayerColliderManager : Photon.MonoBehaviour
             {
                 if (ps.currHp > 0)
                 {
-                    Debug.Log("허벅지 맞음");
                     ps.currHp -= 12;
 
                 }
@@ -70,7 +66,6 @@ public class PlayerColliderManager : Photon.MonoBehaviour
             {
                 if (ps.currHp > 0)
                 {
-                    Debug.Log("몸 맞음");
                     ps.currHp -= 20;
                 }
             }

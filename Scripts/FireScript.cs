@@ -178,7 +178,6 @@ public class FireScript : Photon.MonoBehaviour
 
     IEnumerator reloadGun()
     {
-        Debug.Log("재장전 시작");
         yield return new WaitForSeconds(2.5f);
         if (havingBulletCount >= Constants.m16MaxBulletCount)
         {
@@ -191,7 +190,6 @@ public class FireScript : Photon.MonoBehaviour
             currentBulletCount = havingBulletCount;
             havingBulletCount = 0;
         }
-        Debug.Log("재장전 끝");
     }
 
     void soloWeaponSound(string waepon)

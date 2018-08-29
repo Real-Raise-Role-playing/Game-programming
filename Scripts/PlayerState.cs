@@ -56,7 +56,6 @@ public class PlayerState : Photon.MonoBehaviour
 
     [PunRPC]
     void AddScore(int attackPlayerNum) {
-        Debug.Log("attackPlayerNum : " + attackPlayerNum);
         foreach (GameObject player in PhotonManager.instance.playerObjList)
         {
             if (player.GetComponent<PhotonView>().viewID == attackPlayerNum)
@@ -87,14 +86,6 @@ public class PlayerState : Photon.MonoBehaviour
         sbm.HpBarSlider.value = (currHp * 0.01f);
         if (currHp <= 0 && playerStateNum != Constants.DEAD)
         {
-            //foreach (GameObject Player in PhotonManager.instance.playerObjList)
-            //{
-            //    if (Player.GetComponent<PhotonView>().viewID == attackPlayerNum)
-            //    {
-            //        Player.GetComponent<PhotonView>().viewID.
-            //        break;
-            //    }
-            //}
             playerStateNum = Constants.DEAD;
 
             //모든 루틴 멈춰야할지?
@@ -111,6 +102,7 @@ public class PlayerState : Photon.MonoBehaviour
             optionManager.InventoryObj.SetActive(false);
             Camera.main.transform.position = new Vector3(deathCamPivot.transform.position.x, deathCamPivot.transform.position.y, deathCamPivot.transform.position.z);
             Camera.main.transform.eulerAngles = new Vector3(deathCamPivot.transform.eulerAngles.x, deathCamPivot.transform.eulerAngles.y, deathCamPivot.transform.eulerAngles.z);
+
             charMove.AnimBool("death", true);
             Invoke("DelayGameOverTime", 5.0f);
         }
