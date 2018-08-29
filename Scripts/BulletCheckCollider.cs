@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BulletCheckCollider : MonoBehaviour
 {
+    public int masterViewNum = 0;
     void OnCollisionEnter(Collision other)
     {
         //if (!playerState.isDead && other.CompareTag("Player"))

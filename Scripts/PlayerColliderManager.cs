@@ -37,6 +37,7 @@ public class PlayerColliderManager : Photon.MonoBehaviour
         }
         else if (collisionLayer == LayerMask.NameToLayer("Bullet"))
         {
+            Debug.Log("쏜놈 : " + other.gameObject.GetComponent<BulletCheckCollider>().masterViewNum);
             sbm.beShotImg.color = sbm.beShotImgColor;
             //suc.beShotImg.color = suc.beShotImgColor;
             Destroy(other.gameObject);
@@ -73,12 +74,13 @@ public class PlayerColliderManager : Photon.MonoBehaviour
                     ps.currHp -= 20;
                 }
             }
-            ps.playerStateUpdate();
+            ps.playerStateUpdate(other.gameObject.GetComponent<BulletCheckCollider>().masterViewNum);
             pm.Action(this.gameObject.name);
             StartCoroutine(sbm.delayTime(2.0f));
         }
         else if (collisionLayer == LayerMask.NameToLayer("Knife"))// && !transform.root.gameObject) // cm.melee_attack)
         {
+            Debug.Log("긁은 놈 : " + other.gameObject.GetComponent<KnifeCheckCollider>().masterViewNum);
             sbm.beShotImg.color = sbm.beShotImgColor;
             if (this.gameObject.name == "HeadCollider")
             {
@@ -113,7 +115,7 @@ public class PlayerColliderManager : Photon.MonoBehaviour
                     ps.currHp -= 30;
                 }
             }
-            ps.playerStateUpdate();
+            ps.playerStateUpdate(other.gameObject.GetComponent<KnifeCheckCollider>().masterViewNum);
             pm.Action(this.gameObject.name);
             StartCoroutine(sbm.delayTime(2.0f));
         }

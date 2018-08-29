@@ -144,7 +144,7 @@ public class CheckCollider : Photon.MonoBehaviour
                         }
                         //사용 하였으면 삭제
                         //idb.Remove(iv.enteredSlot.item.itemCount);
-                        ps.playerStateUpdate();
+                        ps.playerStateUpdate(PhotonNetwork.player.ID);
                     }
                     else
                     {
@@ -167,7 +167,7 @@ public class CheckCollider : Photon.MonoBehaviour
                             //suc.HangerBarSlider.value = 100;
                         }
                         //사용 하였으면 삭제
-                        ps.playerStateUpdate();
+                        ps.playerStateUpdate(PhotonNetwork.player.ID);
                     }
                     else
                     {
@@ -346,6 +346,8 @@ public class CheckCollider : Photon.MonoBehaviour
     {
         GUILayout.Label(" ");
         GUILayout.Label(" ");
+        GUILayout.Label("Player Kill Score : " + ps.killScore);
+        //GUILayout.Label("Player Kill Score : " + PhotonNetwork.player.GetScore());
         if (GUILayout.Button("Leave Room"))
         {
             // Mouse Lock

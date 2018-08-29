@@ -229,21 +229,22 @@ public class CharacterMove : Photon.MonoBehaviour
                 //    AnimPlay("MELEE_ATTACK", -1, 1.0f);
                 //}
                 //Invoke("meleeAttackDelay", Constants.meleeAttackSpeed-1.5f);
-                Debug.Log("if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false) ");
+                //Debug.Log("if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false) ");
                 AnimPlay("MELEE_ATTACK", -1, 1.0f);
                 Invoke("meleeAttackDelay1", Constants.meleeAttackSpeed - 1.8f);
+                Debug.Log("긁기 내 ID : " + PhotonNetwork.player.ID);
                 //StartCoroutine(meleeAttackDelay(true, 0.5f));
             }
             else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true)
             {
                 //StartCoroutine(meleeAttackDelay(false, 2.0f));
-                Debug.Log("else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true) 실행");
+                //Debug.Log("else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true) 실행");
                 Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.0f);
             }
             else if (knifeCollider.gameObject.GetActive() == true)
             {
-                Debug.Log("else if (knifeCollider.gameObject.GetActive() == true) 실행");
-                Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.0f);
+                //Debug.Log("else if (knifeCollider.gameObject.GetActive() == true) 실행");
+                Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.5f);
                 //meleeAttackDelay2();
             }
             //else if (Input.GetKeyUp(KeyCode.V))
@@ -376,7 +377,7 @@ public class CharacterMove : Photon.MonoBehaviour
                 {
                     sbm.beShotImg.color = sbm.beShotImgColor;
                     ps.currHp -= 1;
-                    ps.playerStateUpdate();
+                    ps.playerStateUpdate(PhotonNetwork.player.ID);
                 }
             }
         }
@@ -416,7 +417,8 @@ public class CharacterMove : Photon.MonoBehaviour
     void MelleBool(bool _melee_attack)
     {
         knifeCollider.gameObject.SetActive(_melee_attack);
-        Debug.Log(knifeCollider.gameObject.GetActive());
+        knifeCollider.gameObject.GetComponent<KnifeCheckCollider>().masterViewNum = pv.viewID;
+        //knifeCollider.gameObject.GetComponent<KnifeCheckCollider>().masterViewNum = PhotonNetwork.player.ID;
     }
 
     //IEnumerator delayAnimPlay(float sec,string animName)

@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using System.Timers;
 
-public class WorldTimerManager : MonoBehaviour
+public class WorldTimerManager : Photon.MonoBehaviour
 {
 
     public static WorldTimerManager instance;

@@ -226,9 +226,13 @@ public class FireScript : Photon.MonoBehaviour
         shellInstance.velocity = (cameraTransform.forward * forwardPower) + (Vector3.up * upPower);
         pv.RPC("FireOther", PhotonTargets.Others, cameraTransform.forward);
     }
+
     [PunRPC]
     void FireOther(Vector3 camForward)
     {
+        fireObject.GetComponent<BulletCheckCollider>().masterViewNum = pv.viewID;
+        //fireObject.GetComponent<BulletCheckCollider>().masterViewNum = PhotonNetwork.player.ID;
+        //Debug.Log("void FireOther(Vector3 camForward)");
         Rigidbody shellInstance = Instantiate(fireObjectRb, fireTransform.position, fireTransform.rotation) as Rigidbody;
         shellInstance.velocity = (camForward * forwardPower) + (Vector3.up * upPower);
     }

@@ -4,6 +4,9 @@ using UnityEngine;
 public class PlayerState : Photon.MonoBehaviour
 {
     public int playerStateNum = 0;
+    //public int teamNum = 0;
+    public int killScore = 0;
+
     private PhotonView pv = null;
     public GameObject hpBarObj = null;
     public GameObject otherUIobj = null;
@@ -51,7 +54,29 @@ public class PlayerState : Photon.MonoBehaviour
         }
     }
 
-    public void playerStateUpdate()
+    [PunRPC]
+    void AddScore(int attackPlayerNum) {
+        Debug.Log("attackPlayerNum : " + attackPlayerNum);
+        foreach (GameObject player in PhotonManager.instance.playerObjList)
+        {
+            if (player.GetComponent<PhotonView>().viewID == attackPlayerNum)
+            {
+                player.GetComponent<PlayerState>().killScore++;
+            }
+        }
+
+        //foreach (PhotonPlayer Player in PhotonNetwork.playerList)
+        //{
+        //    if (Player.ID == attackPlayerNum)
+        //    {
+        //        Debug.Log("Player.ID" + Player.ID);
+        //        Player.AddScore(1);
+        //        break;
+        //    }
+        //}
+    }
+
+    public void playerStateUpdate(int attackPlayerNum)
     {
         //if (!pv.isMine)
         //{
@@ -62,10 +87,27 @@ public class PlayerState : Photon.MonoBehaviour
         sbm.HpBarSlider.value = (currHp * 0.01f);
         if (currHp <= 0 && playerStateNum != Constants.DEAD)
         {
+            //foreach (GameObject Player in PhotonManager.instance.playerObjList)
+            //{
+            //    if (Player.GetComponent<PhotonView>().viewID == attackPlayerNum)
+            //    {
+            //        Player.GetComponent<PhotonView>().viewID.
+            //        break;
+            //    }
+            //}
+            playerStateNum = Constants.DEAD;
+
+            //모든 루틴 멈춰야할지?
+            StopAllCoroutines();
+            CancelInvoke();
+            pv.RPC("AddScore", PhotonTargets.AllBufferedViaServer, attackPlayerNum);
+            
             //순서 중요
             hpBarObj.SetActive(false);
-            otherUIobj.SetActive(false);
-            playerStateNum = Constants.DEAD;
+            //NGUI는 바로 Destroy..를 해야 에러가 안뜸..
+            //otherUIobj.SetActive(false);
+            Destroy(otherUIobj);
+
             optionManager.InventoryObj.SetActive(false);
             Camera.main.transform.position = new Vector3(deathCamPivot.transform.position.x, deathCamPivot.transform.position.y, deathCamPivot.transform.position.z);
             Camera.main.transform.eulerAngles = new Vector3(deathCamPivot.transform.eulerAngles.x, deathCamPivot.transform.eulerAngles.y, deathCamPivot.transform.eulerAngles.z);
