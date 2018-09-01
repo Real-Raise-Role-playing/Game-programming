@@ -48,12 +48,9 @@ public class CameraControl : MonoBehaviour
             rotationX %= 360;
             rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
             transform.Rotate(Vector3.left * Time.deltaTime * Constants.defaultSensitivity * Input.GetAxis("Mouse Y"));
-            //rotationX = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
-            //rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
 
             cm.AnimFloat("RotationX", rotationX);
-            Debug.Log("rotationX : " + rotationX);
-
+            //Debug.Log("rotationX : " + rotationX);
         }
     }
 }

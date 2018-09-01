@@ -133,8 +133,8 @@ public class CharacterMove : Photon.MonoBehaviour
             moveDirection.y = yVelocity;
             characterController.Move(moveDirection * Time.deltaTime);
             RunCheck();
-            //수정해야함 Check에서 뺴야함
-            AnimCheck(x, z);
+            WalkCheck(x, z);
+            AnimCheck();
             //-----------------------------------------
         }
     } // End of Update
@@ -190,12 +190,189 @@ public class CharacterMove : Photon.MonoBehaviour
         anim.SetBool(animName, check);
     }
 
-    void AnimCheck(float x, float z)
+    //void AnimCheck(float x, float z)
+    //{
+    //    if (!om.InventoryOn)
+    //    {
+    //        //-----------------------------------------
+    //        //그냥 걷기
+    //        if (x != 0 || z != 0)
+    //        {
+    //            isWalk = true;
+    //        }
+    //        else
+    //        {
+    //            //rb.isKinematic = true;
+    //            isWalk = false;
+    //        }
+    //        //-----------------------------------------
+    //        //점프
+    //        if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
+    //        {
+    //            //if (!jump)
+    //            //{
+    //            //    AnimPlay("JUMP01", -1, 0f);
+    //            //}
+    //            //점프 애니메이션 수정
+    //            //Debug.Log("점프");
+    //            yVelocity = jumpSpeed;
+    //            jumpCount++;
+    //            ps.isGrounded = false;
+    //            jump = true;
+    //            //AnimPlay("JUMP01", -1, 0f);
+    //            AnimBool("jump", jump);
+    //        }
+    //        if (ps.isGrounded == true && jumpCount > 0.0f)
+    //        {
+    //            yVelocity = Constants.Default_yVelocity;
+    //            jumpCount = 0.0f;
+    //            jump = false;
+    //            AnimBool("jump", jump);
+    //        }
+    //        //-----------------------------------------
+    //        //근접 공격
+    //        if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false)
+    //        {
+    //            //StartCoroutine(delayAnimPlay(1.0f, "MELEE_ATTACK"));
+    //            //if (Time.time > nextAttack)
+    //            //{
+    //            //    nextAttack = Time.time + Constants.meleeAttackSpeed;
+    //            //    AnimPlay("MELEE_ATTACK", -1, 1.0f);
+    //            //}
+    //            //Invoke("meleeAttackDelay", Constants.meleeAttackSpeed-1.5f);
+    //            //Debug.Log("if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false) ");
+    //            AnimPlay("MELEE_ATTACK", -1, 1.0f);
+    //            Invoke("meleeAttackDelay1", Constants.meleeAttackSpeed - 1.8f);
+    //            Debug.Log("긁기 내 ID : " + PhotonNetwork.player.ID);
+    //            //StartCoroutine(meleeAttackDelay(true, 0.5f));
+    //        }
+    //        else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true)
+    //        {
+    //            //StartCoroutine(meleeAttackDelay(false, 2.0f));
+    //            //Debug.Log("else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true) 실행");
+    //            Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.0f);
+    //        }
+    //        else if (knifeCollider.gameObject.GetActive() == true)
+    //        {
+    //            //Debug.Log("else if (knifeCollider.gameObject.GetActive() == true) 실행");
+    //            Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.5f);
+    //            //meleeAttackDelay2();
+    //        }
+    //        //else if (Input.GetKeyUp(KeyCode.V))
+    //        //{
+    //        //    //melee_attack = false;
+    //        //    meleeAttackDelay(false);
+    //        //}
+
+    //        //-----------------------------------------                                                                 
+    //        //에임 공격
+    //        if (!aim && Input.GetMouseButtonDown(1))
+    //        {
+    //            Camera.main.fieldOfView = scopedFOV;
+    //            //AnimPlay("AIM", -1, 0f);
+    //            AnimBool("aim", true);
+    //            scopeOverlay.SetActive(true);
+    //            //Camera.main.cullingMask &= ~(1 << LayerMask.NameToLayer("Player"));
+    //            ps.renderers[1].enabled = false;
+    //            aim = true;
+    //            //aim = fs.shotState;
+    //            //--------------------------
+    //            //WeaponsCamera.SetActive(true);
+    //            //-----------------------
+    //        }
+    //        else if (aim && Input.GetMouseButtonDown(1))
+    //        {
+    //            AnimBool("aim", false);
+    //            scopeOverlay.SetActive(false);
+    //            Camera.main.fieldOfView = normalFOV;
+    //            //Camera.main.cullingMask |= 1 << LayerMask.NameToLayer("Player");
+    //            ps.renderers[1].enabled = true;
+    //            aim = false;
+    //            //aim = fs.shotState;
+    //            //WeaponsCamera.SetActive(false);
+    //        }
+    //        //-----------------------------------------
+    //        //논 에임 공격
+    //        if (aim && Input.GetMouseButton(0))
+    //        {
+    //            if (fs.currentBulletCount > 0)
+    //            {
+    //                AnimPlay("AIM_SHOT", -1, 0f);
+    //                attack = true;
+    //            }
+    //        }
+    //        else if (!aim && Input.GetMouseButton(0))
+    //        /*aim == false && Input.GetMouseButtonDown(0)*/
+    //        {
+    //            if (fs.currentBulletCount > 0)
+    //            {
+    //                AnimPlay("NONE_AIM", -1, 0f);
+    //            }
+    //        }
+    //        //-----------------------------------------
+
+    //        //-----------------------------------------
+    //        // 앉기
+    //        if (Input.GetKeyDown(KeyCode.C))
+    //        {
+    //            sit = !sit;
+    //            AnimBool("sit", sit);
+    //            if (sit)
+    //            {
+    //                moveSpeed = Constants.SitMoveSpeed;
+    //            }
+    //            else
+    //            {
+    //                moveSpeed = Constants.DefaultMoveSpeed;
+    //            }
+    //        }
+    //        //else if (Input.GetKeyUp(KeyCode.C) && sit)
+    //        //{
+    //        //    //AnimPlay("sit_up", -1, 0f);
+    //        //    moveSpeed = Constants.DefaultMoveSpeed;
+    //        //    sit = false;
+    //        //    AnimBool("sit", false);
+    //        //}
+    //        //재장전
+    //        if (!aim && fs.reloadAnimCheck)
+    //        {
+    //            AnimPlay("reload", -1, 0f);
+    //        }
+    //        if (!aim && cc.pickUpAnimCheck)
+    //        {
+    //            AnimPlay("pick_up", -1, 0f);
+    //        }
+    //        //왼쪽 내밀기
+    //        if (!aim && !jump && Input.GetKey(KeyCode.Q))
+    //        {
+    //            //anim.Play("tilt_L", -1, 0f);
+    //            tilt_L = true;
+    //            AnimBool("tilt_L", tilt_L);
+    //        }
+    //        else if (tilt_L && Input.GetKeyUp(KeyCode.Q))
+    //        {
+    //            tilt_L = false;
+    //            AnimBool("tilt_L", tilt_L);
+    //        }
+    //        if (!aim && !jump && Input.GetKey(KeyCode.E))
+    //        {
+    //            //anim.Play("tilt_R", -1, 0f);
+    //            tilt_R = true;
+    //            AnimBool("tilt_R", tilt_R);
+    //        }
+    //        else
+    //        {
+    //            tilt_R = false;
+    //            AnimBool("tilt_R", tilt_R);
+    //        }
+    //        //-----------------------------------------
+    //    }
+    //}
+
+    void WalkCheck(float x, float z)
     {
         if (!om.InventoryOn)
         {
-
-
             //-----------------------------------------
             //그냥 걷기
             if (x != 0 || z != 0)
@@ -207,9 +384,12 @@ public class CharacterMove : Photon.MonoBehaviour
                 //rb.isKinematic = true;
                 isWalk = false;
             }
+        }
+    }
+        void AnimCheck()        { 
             //-----------------------------------------
             //점프
-            if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax)
+            if (Input.GetButtonDown("Jump") && jumpCount < Constants.jumpCountMax && !jump)
             {
                 //if (!jump)
                 //{
@@ -224,7 +404,7 @@ public class CharacterMove : Photon.MonoBehaviour
                 //AnimPlay("JUMP01", -1, 0f);
                 AnimBool("jump", jump);
             }
-            if (ps.isGrounded == true && jumpCount > 0.0f)
+            if (ps.isGrounded == true && jumpCount > 0.0f && jump)
             {
                 yVelocity = Constants.Default_yVelocity;
                 jumpCount = 0.0f;
@@ -235,52 +415,29 @@ public class CharacterMove : Photon.MonoBehaviour
             //근접 공격
             if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false)
             {
-                //StartCoroutine(delayAnimPlay(1.0f, "MELEE_ATTACK"));
-                //if (Time.time > nextAttack)
-                //{
-                //    nextAttack = Time.time + Constants.meleeAttackSpeed;
-                //    AnimPlay("MELEE_ATTACK", -1, 1.0f);
-                //}
-                //Invoke("meleeAttackDelay", Constants.meleeAttackSpeed-1.5f);
-                //Debug.Log("if (Input.GetKeyDown(KeyCode.V) && knifeCollider.gameObject.GetActive() == false) ");
                 AnimPlay("MELEE_ATTACK", -1, 1.0f);
-                Invoke("meleeAttackDelay1", Constants.meleeAttackSpeed - 1.8f);
+                Invoke("meleeAttackDelayTrue", Constants.meleeAttackSpeed - 1.8f);
                 Debug.Log("긁기 내 ID : " + PhotonNetwork.player.ID);
-                //StartCoroutine(meleeAttackDelay(true, 0.5f));
             }
             else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true)
             {
-                //StartCoroutine(meleeAttackDelay(false, 2.0f));
-                //Debug.Log("else if (Input.GetKeyUp(KeyCode.V) && knifeCollider.gameObject.GetActive() == true) 실행");
-                Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.0f);
+                Invoke("meleeAttackDelayFalse", Constants.meleeAttackSpeed - 1.0f);
             }
             else if (knifeCollider.gameObject.GetActive() == true)
             {
-                //Debug.Log("else if (knifeCollider.gameObject.GetActive() == true) 실행");
-                Invoke("meleeAttackDelay2", Constants.meleeAttackSpeed - 1.5f);
-                //meleeAttackDelay2();
+                Invoke("meleeAttackDelayFalse", Constants.meleeAttackSpeed - 1.5f);
             }
-            //else if (Input.GetKeyUp(KeyCode.V))
-            //{
-            //    //melee_attack = false;
-            //    meleeAttackDelay(false);
-            //}
 
             //-----------------------------------------                                                                 
             //에임 공격
             if (!aim && Input.GetMouseButtonDown(1))
             {
                 Camera.main.fieldOfView = scopedFOV;
-                //AnimPlay("AIM", -1, 0f);
                 AnimBool("aim", true);
                 scopeOverlay.SetActive(true);
                 //Camera.main.cullingMask &= ~(1 << LayerMask.NameToLayer("Player"));
                 ps.renderers[1].enabled = false;
                 aim = true;
-                //aim = fs.shotState;
-                //--------------------------
-                //WeaponsCamera.SetActive(true);
-                //-----------------------
             }
             else if (aim && Input.GetMouseButtonDown(1))
             {
@@ -290,8 +447,6 @@ public class CharacterMove : Photon.MonoBehaviour
                 //Camera.main.cullingMask |= 1 << LayerMask.NameToLayer("Player");
                 ps.renderers[1].enabled = true;
                 aim = false;
-                //aim = fs.shotState;
-                //WeaponsCamera.SetActive(false);
             }
             //-----------------------------------------
             //논 에임 공격
@@ -304,7 +459,6 @@ public class CharacterMove : Photon.MonoBehaviour
                 }
             }
             else if (!aim && Input.GetMouseButton(0))
-            /*aim == false && Input.GetMouseButtonDown(0)*/
             {
                 if (fs.currentBulletCount > 0)
                 {
@@ -328,13 +482,7 @@ public class CharacterMove : Photon.MonoBehaviour
                     moveSpeed = Constants.DefaultMoveSpeed;
                 }
             }
-            //else if (Input.GetKeyUp(KeyCode.C) && sit)
-            //{
-            //    //AnimPlay("sit_up", -1, 0f);
-            //    moveSpeed = Constants.DefaultMoveSpeed;
-            //    sit = false;
-            //    AnimBool("sit", false);
-            //}
+            
             //재장전
             if (!aim && fs.reloadAnimCheck)
             {
@@ -347,7 +495,6 @@ public class CharacterMove : Photon.MonoBehaviour
             //왼쪽 내밀기
             if (!aim && !jump && Input.GetKey(KeyCode.Q))
             {
-                //anim.Play("tilt_L", -1, 0f);
                 tilt_L = true;
                 AnimBool("tilt_L", tilt_L);
             }
@@ -358,7 +505,6 @@ public class CharacterMove : Photon.MonoBehaviour
             }
             if (!aim && !jump && Input.GetKey(KeyCode.E))
             {
-                //anim.Play("tilt_R", -1, 0f);
                 tilt_R = true;
                 AnimBool("tilt_R", tilt_R);
             }
@@ -369,7 +515,7 @@ public class CharacterMove : Photon.MonoBehaviour
             }
             //-----------------------------------------
         }
-    }
+
 
     void RunCheck()
     {
@@ -411,18 +557,12 @@ public class CharacterMove : Photon.MonoBehaviour
         }
     }
 
-    IEnumerator meleeAttackDelay(bool active, float time)
-    {
-        yield return new WaitForSeconds(time);
-        pv.RPC("MelleBool", PhotonTargets.All, active);
-    }
-
-    void meleeAttackDelay1()
+    void meleeAttackDelayTrue()
     {
         pv.RPC("MelleBool", PhotonTargets.All, true);
     }
 
-    void meleeAttackDelay2()
+    void meleeAttackDelayFalse ()
     {
         pv.RPC("MelleBool", PhotonTargets.All, false);
     }
