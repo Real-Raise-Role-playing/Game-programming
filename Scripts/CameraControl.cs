@@ -6,7 +6,7 @@ public class CameraControl : MonoBehaviour
 {
     public float sensitivity = Constants.defaultSensitivity;
     float rotationX;
-    float rotationY;
+    //float rotationY;
     float ZkeyPos = 0.78f;
     float CamDefaultPos = 3.08f;
     private bool keyZ = true;
@@ -15,6 +15,7 @@ public class CameraControl : MonoBehaviour
     public PhotonView pv = null;
     private OptionManager om = null;
     private PlayerState ps = null;
+    private CharacterMove cm = null;
     public Camera thisCamera = null;
 
     void OnEnable()
@@ -25,8 +26,10 @@ public class CameraControl : MonoBehaviour
             //UICamTr = Player.transform.Find("UICamera").gameObject.GetComponent<Transform>();
             om = Player.GetComponent<OptionManager>();
             ps = Player.GetComponent<PlayerState>();
+            cm = Player.GetComponent<CharacterMove>();
             thisCamera = this.gameObject.GetComponent<Camera>();
             thisCamera.fieldOfView = 100.0f;
+            rotationX = 0.0f;
         }
         else
         {
@@ -38,22 +41,12 @@ public class CameraControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!pv.isMine || ps.playerStateNum == Constants.DEAD) { return; }
-
-        else
-        {
-            if (!om.InventoryOn)
-            {
-                float mouseMoveValueX = Input.GetAxis("Mouse X");
-                float mouseMoveValueY = Input.GetAxis("Mouse Y");
-                rotationY += mouseMoveValueX * sensitivity * Time.deltaTime;
-                rotationX += mouseMoveValueY * sensitivity * Time.deltaTime;
-                rotationX %= 360;
-                rotationY %= 360;
-                rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
-
-                transform.eulerAngles = new Vector3(-rotationX, rotationY, 0.0f);
-            }
-        }
+        if (!pv.isMine || ps.playerStateNum == Constants.DEAD || om.InventoryOn) { return; }
+        rotationX = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+        //플레이어 상하 마우스 각도 제한
+        rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
+        transform.Rotate(Vector3.left * rotationX);
+        cm.AnimFloat("RotationX", rotationX);
+        Debug.Log("rotationX : " + rotationX);
     }
 }

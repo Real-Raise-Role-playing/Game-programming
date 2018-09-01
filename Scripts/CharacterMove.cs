@@ -34,7 +34,7 @@ public class CharacterMove : Photon.MonoBehaviour
     //이동 변수
     [HideInInspector]
     public float x, z;
-    float rotationX;
+    //float rotationX;
     float rotationY;
 
     [HideInInspector]
@@ -97,6 +97,8 @@ public class CharacterMove : Photon.MonoBehaviour
             cameraTransform = Camera.main.GetComponent<Transform>();
             normalFOV = Camera.main.fieldOfView;
         }
+        //rotationX = 0.0f;
+        rotationY = 0.0f;
     }
 
     void FixedUpdate()
@@ -112,16 +114,13 @@ public class CharacterMove : Photon.MonoBehaviour
             {
                 x = Input.GetAxis("Horizontal");
                 z = Input.GetAxis("Vertical");
-                //float mouseMoveValueX = Input.GetAxis("Mouse X");
-                //float mouseMoveValueY = Input.GetAxis("Mouse Y");
-                //rotationY += mouseMoveValueX * Constants.defaultSensitivity * Time.deltaTime;
-                //rotationX += mouseMoveValueY * Constants.defaultSensitivity * Time.deltaTime;
-                //rotationX %= 360;
-                //rotationY %= 360;
-                //rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
-                //transform.eulerAngles = new Vector3(-rotationX, rotationY, 0.0f);
+
+                rotationY = Input.GetAxis("Mouse X") * Constants.defaultSensitivity * Time.deltaTime;
+                //Debug.Log("rotationY : " + rotationY);
                 //캐릭터 회전 관련 마우스 X축 (좌 <-> 우)
-                transform.Rotate(Vector3.up * Time.deltaTime * Constants.defaultSensitivity * Input.GetAxis("Mouse X"));
+                transform.Rotate(Vector3.up * rotationY);
+                //AnimFloat("RotationX", rotationX);
+                AnimFloat("RotationY", rotationY);
 
                 moveDirection = new Vector3(x, 0, z);
                 moveDirection = cameraTransform.TransformDirection(moveDirection);
@@ -135,6 +134,7 @@ public class CharacterMove : Photon.MonoBehaviour
             moveDirection.y = yVelocity;
             characterController.Move(moveDirection * Time.deltaTime);
             RunCheck();
+            //수정해야함 Check에서 뺴야함
             AnimCheck(x, z);
             //-----------------------------------------
         }
@@ -158,6 +158,20 @@ public class CharacterMove : Photon.MonoBehaviour
         //    return;
         //}
         anim.Play(animName, layer, time);
+    }
+
+    public void AnimFloat(string animName, float value)
+    {
+        if (!om.InventoryOn && animName != "death")
+        {
+            anim.SetFloat(animName, value);
+            pv.RPC("OtherAnimFloat", PhotonTargets.Others, animName, value);
+        }
+    }
+    [PunRPC]
+    void OtherAnimFloat(string animName, float value)
+    {
+        anim.SetFloat(animName, value);
     }
 
     public void AnimBool(string animName, bool check)
@@ -398,7 +412,8 @@ public class CharacterMove : Photon.MonoBehaviour
         }
     }
 
-    IEnumerator meleeAttackDelay(bool active, float time) {
+    IEnumerator meleeAttackDelay(bool active, float time)
+    {
         yield return new WaitForSeconds(time);
         pv.RPC("MelleBool", PhotonTargets.All, active);
     }
