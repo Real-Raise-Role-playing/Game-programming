@@ -42,11 +42,18 @@ public class CameraControl : MonoBehaviour
     void Update()
     {
         if (!pv.isMine || ps.playerStateNum == Constants.DEAD || om.InventoryOn) { return; }
-        rotationX = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
-        //플레이어 상하 마우스 각도 제한
-        rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
-        transform.Rotate(Vector3.left * rotationX);
-        cm.AnimFloat("RotationX", rotationX);
-        Debug.Log("rotationX : " + rotationX);
+        else
+        {
+            rotationX += Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+            rotationX %= 360;
+            rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
+            transform.Rotate(Vector3.left * Time.deltaTime * Constants.defaultSensitivity * Input.GetAxis("Mouse Y"));
+            //rotationX = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+            //rotationX = Mathf.Clamp(rotationX, -30.0f, 80.0f);
+
+            cm.AnimFloat("RotationX", rotationX);
+            Debug.Log("rotationX : " + rotationX);
+
+        }
     }
 }

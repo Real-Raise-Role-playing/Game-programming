@@ -114,12 +114,11 @@ public class CharacterMove : Photon.MonoBehaviour
             {
                 x = Input.GetAxis("Horizontal");
                 z = Input.GetAxis("Vertical");
-
-                rotationY = Input.GetAxis("Mouse X") * Constants.defaultSensitivity * Time.deltaTime;
-                //Debug.Log("rotationY : " + rotationY);
+                rotationY += Input.GetAxis("Mouse X") * Constants.defaultSensitivity * Time.deltaTime;
+                rotationY %= 360;
+                //transform.eulerAngles = new Vector3(transform.eulerAngles.x, rotationY, transform.eulerAngles.z);
                 //캐릭터 회전 관련 마우스 X축 (좌 <-> 우)
-                transform.Rotate(Vector3.up * rotationY);
-                //AnimFloat("RotationX", rotationX);
+                transform.Rotate(Vector3.up * Time.deltaTime * Constants.defaultSensitivity * Input.GetAxis("Mouse X"));
                 AnimFloat("RotationY", rotationY);
 
                 moveDirection = new Vector3(x, 0, z);
